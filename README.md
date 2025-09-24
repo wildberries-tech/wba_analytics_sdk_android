@@ -1,4 +1,5 @@
 # WB Analytics 2 Android Client
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README-en.md)
 
 Клиентская андроид библиотека для Wildberries аналитики.
 
