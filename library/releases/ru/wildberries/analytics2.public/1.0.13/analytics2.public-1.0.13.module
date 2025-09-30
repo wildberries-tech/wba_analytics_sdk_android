@@ -1,0 +1,173 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "ru.wildberries",
+    "module": "analytics2.public",
+    "version": "1.0.13",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.13"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.7.3"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "analytics2.public-1.0.13.aar",
+          "url": "analytics2.public-1.0.13.aar",
+          "size": 246407,
+          "sha512": "666fe33a7a123038aa4c5cb9d0cdb39b7c560257906b5e4e0c844bc29baf5f6d609e26e5f69b6c45de6b76b42e84fef84afd03f6d44ecdce225dfd8a70deb936",
+          "sha256": "292cbef682dd8ad9af132f06a9aed199b0314a5aeba5e7f76237aaef6bfc88fb",
+          "sha1": "592eaf8d4b41355b3d166ddb5ae5f7567126dd8c",
+          "md5": "f9fc31714f60251a98aaacb87826a66f"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.core",
+          "module": "core-ktx",
+          "version": {
+            "requires": "1.9.0"
+          }
+        },
+        {
+          "group": "com.squareup.okhttp3",
+          "module": "okhttp",
+          "version": {
+            "requires": "4.12.0"
+          }
+        },
+        {
+          "group": "ru.gildor.coroutines",
+          "module": "kotlin-coroutines-okhttp",
+          "version": {
+            "requires": "1.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-android",
+          "version": {
+            "requires": "1.8.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-collections-immutable",
+          "version": {
+            "requires": "0.3.5"
+          }
+        },
+        {
+          "group": "androidx.room",
+          "module": "room-runtime",
+          "version": {
+            "requires": "2.6.0"
+          }
+        },
+        {
+          "group": "androidx.room",
+          "module": "room-ktx",
+          "version": {
+            "requires": "2.6.0"
+          }
+        },
+        {
+          "group": "androidx.startup",
+          "module": "startup-runtime",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-process",
+          "version": {
+            "requires": "2.8.5"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.7.3"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "analytics2.public-1.0.13.aar",
+          "url": "analytics2.public-1.0.13.aar",
+          "size": 246407,
+          "sha512": "666fe33a7a123038aa4c5cb9d0cdb39b7c560257906b5e4e0c844bc29baf5f6d609e26e5f69b6c45de6b76b42e84fef84afd03f6d44ecdce225dfd8a70deb936",
+          "sha256": "292cbef682dd8ad9af132f06a9aed199b0314a5aeba5e7f76237aaef6bfc88fb",
+          "sha1": "592eaf8d4b41355b3d166ddb5ae5f7567126dd8c",
+          "md5": "f9fc31714f60251a98aaacb87826a66f"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseSourcePublication",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "analytics2.public-1.0.13-sources.jar",
+          "url": "analytics2.public-1.0.13-sources.jar",
+          "size": 51739,
+          "sha512": "078a7cfa422f88dabde1733bf8d28c36436f88b56f28033c727751cbd5b7f432bac43e8985e3703eb4f0683e02df09fa6dca28069f62b4e972db3bc6816a998f",
+          "sha256": "0ceeb7e9f93b23d3315996e103eadf7bf5d261458326e5b44feaa35a4dd66334",
+          "sha1": "4cd26a2c651ad19d044328a2ebb669bd44c60ab4",
+          "md5": "e6968c1ee0459f622dec93e0ee3c9ce2"
+        }
+      ]
+    }
+  ]
+}
