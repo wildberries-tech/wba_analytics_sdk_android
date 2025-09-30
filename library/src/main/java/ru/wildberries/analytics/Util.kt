@@ -29,7 +29,7 @@ internal lateinit var wbAnalytics2Locator: WBAnalytics2ServiceLocator
 @Volatile
 public var wbAnalytics2CustomLogger: WBAnalytics2Logger? = null
 
-internal const val DEFAULT_PROD_URL = "https://a.wb.ru/m/batch"
+internal const val DEFAULT_PROD_URL = "https://wba.wb.ru/m/batch"
 
 public fun WBAnalytics2(
     apiUrlProvider: () -> ApiUrl = { DEFAULT_PROD_URL },

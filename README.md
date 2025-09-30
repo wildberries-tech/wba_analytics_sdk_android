@@ -22,7 +22,7 @@ lateinit var wba: WBAnalytics2
 
 ```kotlin
 val analytics = WBAnalytics2(
-    apiUrlProvider = { "https://a.wb.ru/m/batch" }, // URL для отправки событий
+    apiUrlProvider = { "https://wba.wb.ru/m/batch" }, // URL для отправки событий
     apiKey = "ВАШ_API_KEY",                         // Ваш API-ключ
     isCollectionEnabled = true                       // Включить/отключить сбор событий
 )
@@ -42,7 +42,7 @@ return WBAnalytics2(
 **Пояснения к параметрам конструктора:**
 
 - `apiUrlProvider` — функция, возвращающая URL для отправки аналитики (обычно
-  `"https://a.wb.ru/m/batch"`).
+  `"https://wba.wb.ru/m/batch"`).
 - `apiKey` — API-ключ для авторизации в сервисе аналитики.
 - `isCollectionEnabled` — флаг, отвечающий за то, включена ли обработка событий по умолчанию (можно
   менять в рантайме).

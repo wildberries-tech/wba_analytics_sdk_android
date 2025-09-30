@@ -22,7 +22,7 @@ Or you can create it manually:
 
 ```kotlin
 val analytics = WBAnalytics2(
-    apiUrlProvider = { "https://a.wb.ru/m/batch" }, // URL for sending events
+    apiUrlProvider = { "https://wba.wb.ru/m/batch" }, // URL for sending events
     apiKey = "YOUR_API_KEY",                        // Your API key
     isCollectionEnabled = true                      // Enable/disable event collection
 )
@@ -41,7 +41,7 @@ return WBAnalytics2(
 **Constructor parameters explanation:**
 
 - `apiUrlProvider` — function returning the URL for sending analytics (usually
-  `"https://a.wb.ru/m/batch"`).
+  `"https://wba.wb.ru/m/batch"`).
 - `apiKey` — API key for authentication in the analytics service.
 - `isCollectionEnabled` — flag that controls whether event processing is enabled by default (can be changed at runtime).
 
