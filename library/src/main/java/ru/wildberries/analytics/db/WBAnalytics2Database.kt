@@ -24,8 +24,7 @@ import java.time.OffsetDateTime
         EventEntity::class,
         SentInfoEntity::class,
     ],
-    version = 5,
-    autoMigrations = [AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5, spec = AutoMigration4to5::class)],
+    version = 6,
     exportSchema = true
 )
 internal abstract class WBAnalytics2Database : RoomDatabase() {

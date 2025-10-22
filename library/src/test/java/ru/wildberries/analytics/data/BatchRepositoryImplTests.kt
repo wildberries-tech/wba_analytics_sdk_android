@@ -32,7 +32,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @OptIn(InternalSerializationApi::class)
-@Suppress("Unused")
 internal class BatchRepositoryImplTests : BehaviorSpec({
 
     val apiData = ApiData(apiUrl = "apiUrl", apiKey = "apiKey")

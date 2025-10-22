@@ -10,6 +10,8 @@ pluginManagement {
         maven("https://nexus-proxy.wb.ru/repository/maven-proxy/")
         maven("https://nexus-proxy.wb.ru/repository/maven-proxy-gradle-plugins/")
         maven("https://nexus-proxy.wb.ru/repository/maven-proxy-google/")
+        google()
+        mavenCentral()
     }
 }
 dependencyResolutionManagement {
@@ -24,8 +26,11 @@ dependencyResolutionManagement {
         maven("https://nexus-proxy.wb.ru/repository/maven-proxy/")
         maven("https://nexus-proxy.wb.ru/repository/maven-proxy-gradle-plugins/")
         maven("https://nexus-proxy.wb.ru/repository/maven-proxy-google/")
+        google()
+        mavenCentral()
     }
 }
 
 rootProject.name = "wbanalytics2android"
 include("library")
+include("wbanalyticssdkdemo")

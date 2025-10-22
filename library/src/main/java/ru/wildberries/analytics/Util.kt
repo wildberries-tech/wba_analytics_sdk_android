@@ -1,5 +1,6 @@
 package ru.wildberries.analytics
 
+import android.content.Context
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import ru.wildberries.attribution.api.AttributionStrategy
 import kotlin.time.Duration
 
 /**
@@ -20,9 +22,6 @@ public typealias ApiKey = String
  */
 public typealias ApiUrl = String
 
-@Volatile
-internal lateinit var wbAnalytics2Locator: WBAnalytics2ServiceLocator
-
 /**
  * Позволяет переопределить стандартный логгер (например для отправки non-fatal ошибок).
  */
@@ -31,14 +30,20 @@ public var wbAnalytics2CustomLogger: WBAnalytics2Logger? = null
 
 internal const val DEFAULT_PROD_URL = "https://wba.wb.ru/m/batch"
 
+/**
+ * @param attributionStrategy стратегия проверки атрибуции.
+ * По умолчанию не проверяем.
+ * */
 public fun WBAnalytics2(
+    context: Context,
     apiUrlProvider: () -> ApiUrl = { DEFAULT_PROD_URL },
     apiKey: ApiKey,
     isCollectionEnabled: Boolean = true,
+    attributionStrategy: AttributionStrategy = AttributionStrategy.NotCheckAttribution,
 ): WBAnalytics2 {
     require(apiKey.isNotEmpty())
-
-    return WBAnalytics2Impl(
+    val wbAnalytics2Locator = WBAnalytics2ServiceLocator.getInstance(context)
+    val wba = WBAnalytics2Impl(
         apiUrlProvider = apiUrlProvider,
         apiKey = apiKey,
         isCollectionEnabled = isCollectionEnabled,
@@ -46,6 +51,37 @@ public fun WBAnalytics2(
         eventsRepository = wbAnalytics2Locator.get(),
         coroutineScopeFactory = wbAnalytics2Locator.get(),
         log = wbAnalytics2Locator.get(),
+    )
+    attributionStrategy.execute(
+        context = wbAnalytics2Locator.get(),
+        wba = wba,
+        scopeFactory = wbAnalytics2Locator.get(),
+    )
+    return wba
+}
+
+/**
+ * @param isAttributionTrackingEnabled стратегия проверки атрибуции.
+ * По умолчанию не проверяем.
+ * */
+public fun WBAnalytics2(
+    context: Context,
+    apiUrlProvider: () -> ApiUrl = { DEFAULT_PROD_URL },
+    apiKey: ApiKey,
+    isCollectionEnabled: Boolean = true,
+    isAttributionTrackingEnabled: Boolean = false,
+    handleAttributionLink: suspend (link: String) -> Unit = {}
+) {
+    WBAnalytics2(
+        context = context,
+        apiUrlProvider = apiUrlProvider,
+        apiKey = apiKey,
+        isCollectionEnabled = isCollectionEnabled,
+        attributionStrategy = if (isAttributionTrackingEnabled) {
+            AttributionStrategy.HandleLinkOnAttribution(handleLink = handleAttributionLink)
+        } else {
+            AttributionStrategy.NotCheckAttribution
+        }
     )
 }
 

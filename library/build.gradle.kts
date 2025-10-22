@@ -88,7 +88,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "ru.wildberries"
             artifactId = "analytics2.public"
-            version = "1.0.13"
+            version = "1.0.22"
 
             afterEvaluate {
                 from(components["release"])

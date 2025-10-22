@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 5,
-    "identityHash": "cbc069380b7c1bf5a17adde0803d27a8",
+    "version": 6,
+    "identityHash": "7e29b025d9012a20699cc7d830a087df",
     "entities": [
       {
         "tableName": "EventEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `apiUrl` TEXT NOT NULL DEFAULT 'https://a.wb.ru/m/batch', `apiKey` TEXT NOT NULL, `name` TEXT NOT NULL, `time` TEXT NOT NULL, `extras` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `apiUrl` TEXT NOT NULL DEFAULT 'https://wba.wb.ru/m/batch', `apiKey` TEXT NOT NULL, `name` TEXT NOT NULL, `time` TEXT NOT NULL, `extras` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -19,7 +19,7 @@
             "columnName": "apiUrl",
             "affinity": "TEXT",
             "notNull": true,
-            "defaultValue": "'https://a.wb.ru/m/batch'"
+            "defaultValue": "'https://wba.wb.ru/m/batch'"
           },
           {
             "fieldPath": "apiKey",
@@ -91,7 +91,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cbc069380b7c1bf5a17adde0803d27a8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7e29b025d9012a20699cc7d830a087df')"
     ]
   }
 }

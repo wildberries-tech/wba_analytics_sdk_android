@@ -2,7 +2,10 @@ package ru.wildberries.analytics.event
 
 import androidx.room.invalidationTrackerFlow
 import androidx.room.withTransaction
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import ru.wildberries.analytics.WBAnalytics2Logger
 import ru.wildberries.analytics.db.AnalyticsEventsDao
@@ -32,6 +35,10 @@ internal class EventsRepositoryImpl(
         db.invalidationTrackerFlow(EventEntity.TABLE_NAME)
             .mapNotNull { getFirstEventApiDataOrNull() }
             .first()
+
+    override fun hasEventsFlow(): Flow<Boolean> = db.invalidationTrackerFlow(EventEntity.TABLE_NAME)
+        .map { getFirstEventApiDataOrNull() != null }
+        .distinctUntilChanged()
 
     override suspend fun getEventsSequence(
         apiData: ApiData,
