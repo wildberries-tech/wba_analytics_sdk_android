@@ -8,6 +8,7 @@ import android.os.Build.VERSION_CODES
 import android.view.WindowManager
 import androidx.core.os.ConfigurationCompat
 import kotlinx.serialization.InternalSerializationApi
+import ru.wildberries.analytics.osBuild
 import java.util.Locale
 import java.util.TimeZone
 
@@ -19,16 +20,27 @@ internal class DeviceFingerprintCollector(private val context: Context) {
         val locale = getLocale()
         val language = locale.toLanguageTag()
         val timezone = TimeZone.getDefault().id
+        val pixelRatio = context.resources.displayMetrics.density
+        val osBuild = osBuild.split('.')
+            .mapNotNull { part ->
+                part.dropWhile { it == '0' }
+                    .takeIf { it.isNotEmpty() }
+            }
+            .joinToString(separator = ".")
         return DeviceFingerprintDto(
-            screen = screen,
+            screenResolution = screen,
             platform = "Android",
             language = language,
             timezone = timezone,
+            device = "Android",
+            versionOs = osBuild,
+            pixelRatio = pixelRatio.toString(),
         )
     }
 
-    private fun getLocale(): Locale = ConfigurationCompat.getLocales(context.resources.configuration).get(0)
-        ?: Locale.getDefault()
+    private fun getLocale(): Locale =
+        ConfigurationCompat.getLocales(context.resources.configuration).get(0)
+            ?: Locale.getDefault()
 
     private fun getScreen(): String = try {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager

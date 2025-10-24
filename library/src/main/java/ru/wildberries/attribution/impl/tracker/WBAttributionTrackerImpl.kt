@@ -9,8 +9,9 @@ import ru.wildberries.attribution.api.AttributionData
 import ru.wildberries.attribution.api.WBAttributionLogger
 import ru.wildberries.attribution.api.WBAttributionTracker
 import ru.wildberries.attribution.impl.data.AttributionDataSource
-import ru.wildberries.attribution.impl.data.toDto
+import ru.wildberries.attribution.impl.data.AttributionResultDto
 
+@OptIn(InternalSerializationApi::class)
 internal class WBAttributionTrackerImpl(
     private val log: WBAttributionLogger,
     private val attributionDataSource: AttributionDataSource,
@@ -24,12 +25,12 @@ internal class WBAttributionTrackerImpl(
             if (attributionDataSource.isAttributionChecked()) {
                 log.logDebug { "Attribution data has already been received" }
             } else {
-                val attributionData = attributionDataSource.getAttributionData()
-                onResult(attributionData)
-                analytics.sendAppInstallEvent(attributionData)
+                val attributionResult = attributionDataSource.getAttributionResult()
+                onResult(attributionResult?.fingerprintGathered)
+                analytics.sendAppInstallEvent(attributionResult)
                 log.logDebug {
-                    if (attributionData != null) {
-                        "Attribution data $attributionData was received successfully"
+                    if (attributionResult?.fingerprintGathered != null) {
+                        "Attribution data ${attributionResult.fingerprintGathered} was received successfully"
                     } else {
                         "No attribution data received for device"
                     }
@@ -42,9 +43,8 @@ internal class WBAttributionTrackerImpl(
     }
 
     @OptIn(InternalSerializationApi::class)
-    private fun WBAnalytics2.sendAppInstallEvent(data: AttributionData?) {
-        val parameters = data
-            ?.toDto()
+    private fun WBAnalytics2.sendAppInstallEvent(result: AttributionResultDto?) {
+        val parameters = result
             ?.let { Json.encodeToJsonElement(it) as? JsonObject }
             ?: JsonObject(emptyMap())
         logEvent("app_install", parameters)

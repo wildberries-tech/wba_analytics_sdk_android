@@ -2,8 +2,8 @@ package ru.wildberries.attribution.api
 
 import kotlinx.serialization.json.JsonElement
 
-public data class AttributionData(
-    val counterId: String? = null,
-    val link: String? = null,
-    val otherFields: Map<String, JsonElement>? = null
-)
+public interface AttributionData {
+    public val counterId: String?
+    public val link: String?
+    public val otherFields: Map<String, JsonElement>?
+}

@@ -19,10 +19,10 @@ import ru.wildberries.attribution.api.AttributionData
 @InternalSerializationApi
 @Serializable(AttributionDataSerializer::class)
 internal data class AttributionDataDto(
-    val counterId: String?,
-    val link: String?,
-    val otherFields: Map<String, JsonElement>?,
-)
+    override val counterId: String? = null,
+    override val link: String? = null,
+    override val otherFields: Map<String, JsonElement>? = null,
+) : AttributionData
 
 @InternalSerializationApi
 internal object AttributionDataSerializer : KSerializer<AttributionDataDto> {
@@ -56,17 +56,3 @@ internal object AttributionDataSerializer : KSerializer<AttributionDataDto> {
         )
     }
 }
-
-@InternalSerializationApi
-internal fun AttributionDataDto.toPublicModel(): AttributionData = AttributionData(
-    counterId = counterId,
-    link = link,
-    otherFields = otherFields
-)
-
-@InternalSerializationApi
-internal fun AttributionData.toDto(): AttributionDataDto = AttributionDataDto(
-    counterId = counterId,
-    link = link,
-    otherFields = otherFields
-)

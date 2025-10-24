@@ -1,9 +1,10 @@
 package ru.wildberries.attribution.impl.data
 
-import ru.wildberries.attribution.api.AttributionData
+import kotlinx.serialization.InternalSerializationApi
 
 internal interface AttributionDataSource {
-    suspend fun getAttributionData(): AttributionData?
+    @OptIn(InternalSerializationApi::class)
+    suspend fun getAttributionResult(): AttributionResultDto?
     suspend fun isAttributionChecked(): Boolean
     suspend fun setAttributionChecked()
 }

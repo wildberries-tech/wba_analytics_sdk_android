@@ -11,7 +11,10 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import ru.wildberries.analytics.WBAnalytics2
 import ru.wildberries.attribution.api.AttributionData
+import ru.wildberries.attribution.impl.data.AttributionDataDto
 import ru.wildberries.attribution.impl.data.AttributionDataSource
+import ru.wildberries.attribution.impl.data.AttributionResultDto
+import ru.wildberries.attribution.impl.fingerprint.DeviceFingerprintDto
 import ru.wildberries.attribution.impl.logger.NoOpAttributionLogger
 
 @OptIn(InternalSerializationApi::class)
@@ -27,7 +30,7 @@ internal class WBAttributionTrackerTests : BehaviorSpec({
         val subject = WBAttributionTrackerImpl(log = logger, attributionDataSource = dataSource)
 
         And("Attribution data request succeed") {
-            val attributionData = AttributionData(
+            val attributionData = AttributionDataDto(
                 link = "link",
                 otherFields = mapOf("key" to JsonPrimitive("value"))
             )
@@ -116,12 +119,29 @@ private suspend fun BehaviorSpecWhenContainerScope.thenAttributionNotHappened(
     }
 }
 
+
+@OptIn(InternalSerializationApi::class)
 private class TestAttributionDataSource : AttributionDataSource {
 
-    var attributionDataGetter: () -> AttributionData? = { AttributionData() }
+    var attributionDataGetter: () -> AttributionDataDto? = { AttributionDataDto() }
     var isAttributionReceivedField = false
 
-    override suspend fun getAttributionData(): AttributionData? = attributionDataGetter.invoke()
+    override suspend fun getAttributionResult(): AttributionResultDto? =
+        attributionDataGetter.invoke()
+            ?.let {
+                AttributionResultDto(
+                    fingerprintGathered = it,
+                    userAttributes = DeviceFingerprintDto(
+                        screenResolution = "screenResolution",
+                        platform = "platform",
+                        language = "language",
+                        timezone = "timezone",
+                        device = "device",
+                        versionOs = "versionOs",
+                        pixelRatio = "pixelRatio",
+                    )
+                )
+            }
 
     override suspend fun isAttributionChecked(): Boolean = isAttributionReceivedField
 

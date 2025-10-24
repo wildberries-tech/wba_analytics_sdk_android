@@ -18,7 +18,6 @@ import okio.IOException
 import ru.gildor.coroutines.okhttp.await
 import ru.wildberries.analytics.api.JsonBody
 import ru.wildberries.analytics.transport.HttpTimeouts
-import ru.wildberries.attribution.api.AttributionData
 import ru.wildberries.attribution.api.WBAttributionLogger
 import ru.wildberries.attribution.impl.fingerprint.DeviceFingerprintCollector
 import ru.wildberries.attribution.impl.fingerprint.DeviceFingerprintDto
@@ -47,10 +46,11 @@ internal class AttributionDataSourceImpl(
 
 
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-    override suspend fun getAttributionData(): AttributionData? = onIo {
+    override suspend fun getAttributionResult(): AttributionResultDto? = onIo {
+        val fingerprint = fingerprintCollector.collect()
         val data = getPersistedData()
-            ?: getRemoteData()?.also { persistData(it) }
-        data?.toPublicModel()
+            ?: getRemoteData(fingerprint)?.also { persistData(it) }
+        AttributionResultDto(fingerprintGathered = data, userAttributes = fingerprint)
     }
 
     @InternalSerializationApi
@@ -61,8 +61,7 @@ internal class AttributionDataSourceImpl(
     }
 
     @InternalSerializationApi
-    private suspend fun getRemoteData(): AttributionDataDto? {
-        val fingerprint = fingerprintCollector.collect()
+    private suspend fun getRemoteData(fingerprint: DeviceFingerprintDto): AttributionDataDto? {
         log.logDebug { "fingerprint is $fingerprint" }
         val client = createOkHttpClient()
         val request = Request.Builder()
