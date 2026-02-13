@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.1"
+agp = "8.10.0"
 kotlin = "2.0.21"
 ksp = "2.0.21-1.0.28"
 kotlinx-serialization = "1.7.3" # https://github.com/Kotlin/kotlinx.serialization/releases

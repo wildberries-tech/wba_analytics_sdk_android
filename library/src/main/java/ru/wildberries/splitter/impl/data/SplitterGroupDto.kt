@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @OptIn(InternalSerializationApi::class)
-internal data class SplitterPropertyDto(
+internal class SplitterPropertyDto(
     val key: String,
     val value: String
 )
 
 @Serializable
 @OptIn(InternalSerializationApi::class)
-internal data class SplitterGroupDto(
+internal class SplitterGroupDto(
     val type: String,
     val properties: List<SplitterPropertyDto>
 )

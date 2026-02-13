@@ -25,10 +25,16 @@ internal class InMemoryEventsRepository : EventsRepository {
     }
 
     override suspend fun getFirstEventApiDataOrNull(): ApiData? =
-        eventsState.value.values.firstOrNull()?.apiData
+        eventsState.value.values
+            .sortWithPriority()
+            .firstOrNull()?.apiData
 
     override suspend fun awaitFirstApiData(): ApiData = eventsState
-        .mapNotNull { it.values.firstOrNull() }
+        .mapNotNull {
+            it.values
+                .sortWithPriority()
+                .firstOrNull()
+        }
         .first()
         .apiData
 
@@ -42,8 +48,9 @@ internal class InMemoryEventsRepository : EventsRepository {
     ): CloseableSequence<EventEntity> {
         val sequence = eventsState.value
             .values
-            .asSequence()
             .filter { it.apiData == apiData }
+            .sortWithPriority()
+            .asSequence()
             .take(limit)
         return object : CloseableSequence<EventEntity>, Sequence<EventEntity> by sequence {
             override fun close() = Unit
@@ -77,4 +84,7 @@ internal class InMemoryEventsRepository : EventsRepository {
     private val EventEntity.apiData: ApiData get() = ApiData(apiUrl, apiKey)
     private fun EventEntity.addIdIfNew(): EventEntity =
         if (id == 0) copy(id = lastId.andIncrement) else this
+
+    private fun Collection<EventEntity>.sortWithPriority(): List<EventEntity> =
+        sortedWith(compareByDescending<EventEntity> { it.importance }.thenBy { it.id })
 }

@@ -26,7 +26,9 @@ internal class WBAttributionTrackerImpl(
                 log.logDebug { "Attribution data has already been received" }
             } else {
                 val attributionResult = attributionDataSource.getAttributionResult()
-                onResult(attributionResult?.fingerprintGathered)
+                if(attributionResult?.fingerprintGathered != null) {
+                    onResult(attributionDataSource.decodeAttributionDataJson(attributionResult.fingerprintGathered))
+                }
                 analytics.sendAppInstallEvent(attributionResult)
                 log.logDebug {
                     if (attributionResult?.fingerprintGathered != null) {

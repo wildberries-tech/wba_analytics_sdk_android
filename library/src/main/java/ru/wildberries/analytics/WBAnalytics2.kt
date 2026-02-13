@@ -3,6 +3,8 @@ package ru.wildberries.analytics
 import androidx.annotation.Size
 import kotlinx.serialization.json.JsonObject
 
+internal const val MAX_EVENT_NAME_LENGTH = 120L
+
 public interface WBAnalytics2 {
 
     /**
@@ -34,12 +36,32 @@ public interface WBAnalytics2 {
      * })
      * ```
      */
-    public fun logEvent(@Size(min = 1, max = 40) name: String, parameters: JsonObject = JsonObject(emptyMap()))
+    public fun logEvent(@Size(min = 1, max = MAX_EVENT_NAME_LENGTH) name: String, parameters: JsonObject = JsonObject(emptyMap()))
+
+    /**
+     * Записывает событие аналитики с высоким приоритетом.
+     * Такие события будут отправлены раньше обычных.
+     *
+     * Аналогично [logEvent], эта версия позволяет отправлять более сложные события.
+     *
+     * ВАЖНО: Не злоупотребляйте важными событиями. Если помечать все события как важные,
+     * логика приоритетности перестанет работать эффективно.
+     */
+    public fun logImportantEvent(@Size(min = 1, max = MAX_EVENT_NAME_LENGTH) name: String, parameters: JsonObject = JsonObject(emptyMap()))
 
     /**
      * Записывает событие аналитики.
      */
-    public fun logEvent(@Size(min = 1, max = 40) name: String, parameters: Map<String, String>)
+    public fun logEvent(@Size(min = 1, max = MAX_EVENT_NAME_LENGTH) name: String, parameters: Map<String, String>)
+
+    /**
+     * Записывает событие аналитики с высоким приоритетом.
+     * Такие события будут отправлены раньше обычных.
+     *
+     * ВАЖНО: Не злоупотребляйте важными событиями. Если помечать все события как важные,
+     * логика приоритетности перестанет работать эффективно.
+     */
+    public fun logImportantEvent(@Size(min = 1, max = MAX_EVENT_NAME_LENGTH) name: String, parameters: Map<String, String>)
 
     /**
      * Завершает приём событий этой аналитикой навсегда.

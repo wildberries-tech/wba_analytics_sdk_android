@@ -19,6 +19,7 @@ private class EventsSequence(private val cursor: Cursor) : CloseableSequence<Eve
         val name = cursor.getColumnIndexOrThrow("name")
         val time = cursor.getColumnIndexOrThrow("time")
         val extras = cursor.getColumnIndexOrThrow("extras")
+        val importance = cursor.getColumnIndexOrThrow("importance")
         val timeConverter = OffsetDateTimeConverter()
         val extrasConverter = KeyValueConverter()
 
@@ -32,6 +33,7 @@ private class EventsSequence(private val cursor: Cursor) : CloseableSequence<Eve
                         name = cursor.getString(name),
                         time = timeConverter.toDate(cursor.getString(time)),
                         extras = extrasConverter.fromString(cursor.getString(extras)),
+                        importance = cursor.getInt(importance),
                     )
                 )
             } while (cursor.moveToNext())

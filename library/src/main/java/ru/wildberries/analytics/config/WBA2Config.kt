@@ -27,6 +27,7 @@ public data class WBA2Config(
             delays = SendingDelays(
                 delayBetweenBatches = 2.seconds,
                 delayBetweenOperations = 10.seconds,
+                initialDelay = 2.seconds,
             ),
             batching = BatchingConfig(
                 // Берём не более 200 событий из БД чтобы не сильно

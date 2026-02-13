@@ -57,12 +57,26 @@ internal class WBAnalytics2Impl(
     }
 
     override fun logEvent(name: String, parameters: JsonObject) {
-        require(name.length in 1..40)
+        enqueueEvent(name, EventEntity.IMPORTANCE_NORMAL, parameters)
+    }
+
+    override fun logImportantEvent(name: String, parameters: Map<String, String>) {
+        logImportantEvent(name, parameters.toJsonObject())
+    }
+
+    override fun logImportantEvent(name: String, parameters: JsonObject) {
+        enqueueEvent(name, EventEntity.IMPORTANCE_HIGH, parameters)
+    }
+
+    private fun enqueueEvent(name: String, importance: Int, parameters: JsonObject) {
+        require(name.length in 1..MAX_EVENT_NAME_LENGTH) {
+            "event name($name) length not in 1..$MAX_EVENT_NAME_LENGTH"
+        }
 
         if (!isCollectionEnabled)
             return
 
-        log.logDebug { ("$name: $parameters") }
+        log.logDebug { ("$name${importanceDebugEventSuffix(importance)} : $parameters") }
 
         channel.trySend(
             EventEntity(
@@ -71,9 +85,13 @@ internal class WBAnalytics2Impl(
                 apiKey = apiKey,
                 time = OffsetDateTime.now(clock),
                 extras = mergeParameters(parameters),
+                importance = importance,
             )
         )
     }
+
+    private fun importanceDebugEventSuffix(importance: Int): String =
+        if (importance == EventEntity.IMPORTANCE_HIGH) "(!)" else ""
 
     private fun mergeParameters(parameters: JsonObject): JsonObject {
         val common = commonParameters.get()

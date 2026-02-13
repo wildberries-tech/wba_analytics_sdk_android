@@ -10,6 +10,7 @@ import android.telephony.TelephonyManager
 import android.util.Size
 import android.view.WindowManager
 import androidx.core.content.getSystemService
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.os.ConfigurationCompat
 import ru.wildberries.analytics.domain.MetaInfo
 import ru.wildberries.analytics.domain.NetworkType
@@ -30,7 +31,9 @@ internal class MetadataCollector(
 
     fun collect(): MetaInfo {
         return MetaInfo(
-            locale = ConfigurationCompat.getLocales(context.resources.configuration).get(0)!!.toLanguageTag(),
+            locale = ConfigurationCompat.getLocales(context.resources.configuration).get(0)
+                ?.toLanguageTag()
+                .orEmpty(),
             device = Build.DEVICE,
             sdkVersion = Build.VERSION.SDK_INT.toString(),
             model = Build.DEVICE,
@@ -41,7 +44,9 @@ internal class MetadataCollector(
             fingerprint = Build.FINGERPRINT,
             netType = getNetworkType(),
             appId = context.packageName,
-            appVersion = context.packageManager.getPackageInfo(context.packageName, 0).versionName!!,
+            appVersion = context.packageManager
+                .getPackageInfo(context.packageName, 0)
+                .run { versionName ?: PackageInfoCompat.getLongVersionCode(this).toString() },
             analyticsSdkVersion = "1.0",
             deviceId = deviceInfoProvider.getDeviceId(),
             localTime = OffsetDateTime.now(clock),
@@ -66,25 +71,25 @@ internal class MetadataCollector(
             type == ConnectivityManager.TYPE_ETHERNET -> NetworkType.Ethernet
             type != ConnectivityManager.TYPE_MOBILE -> NetworkType.Other
             subtype == TelephonyManager.NETWORK_TYPE_GPRS ||
-                subtype == TelephonyManager.NETWORK_TYPE_EDGE ||
-                subtype == TelephonyManager.NETWORK_TYPE_CDMA ||
-                subtype == TelephonyManager.NETWORK_TYPE_1xRTT ||
-                subtype == TelephonyManager.NETWORK_TYPE_IDEN ||
-                subtype == TelephonyManager.NETWORK_TYPE_GSM -> NetworkType.Mobile2G
+                    subtype == TelephonyManager.NETWORK_TYPE_EDGE ||
+                    subtype == TelephonyManager.NETWORK_TYPE_CDMA ||
+                    subtype == TelephonyManager.NETWORK_TYPE_1xRTT ||
+                    subtype == TelephonyManager.NETWORK_TYPE_IDEN ||
+                    subtype == TelephonyManager.NETWORK_TYPE_GSM -> NetworkType.Mobile2G
 
             subtype == TelephonyManager.NETWORK_TYPE_UMTS ||
-                subtype == TelephonyManager.NETWORK_TYPE_EVDO_0 ||
-                subtype == TelephonyManager.NETWORK_TYPE_EVDO_A ||
-                subtype == TelephonyManager.NETWORK_TYPE_HSDPA ||
-                subtype == TelephonyManager.NETWORK_TYPE_HSUPA ||
-                subtype == TelephonyManager.NETWORK_TYPE_HSPA ||
-                subtype == TelephonyManager.NETWORK_TYPE_EVDO_B ||
-                subtype == TelephonyManager.NETWORK_TYPE_EHRPD ||
-                subtype == TelephonyManager.NETWORK_TYPE_HSPAP ||
-                subtype == TelephonyManager.NETWORK_TYPE_TD_SCDMA -> NetworkType.Mobile3G
+                    subtype == TelephonyManager.NETWORK_TYPE_EVDO_0 ||
+                    subtype == TelephonyManager.NETWORK_TYPE_EVDO_A ||
+                    subtype == TelephonyManager.NETWORK_TYPE_HSDPA ||
+                    subtype == TelephonyManager.NETWORK_TYPE_HSUPA ||
+                    subtype == TelephonyManager.NETWORK_TYPE_HSPA ||
+                    subtype == TelephonyManager.NETWORK_TYPE_EVDO_B ||
+                    subtype == TelephonyManager.NETWORK_TYPE_EHRPD ||
+                    subtype == TelephonyManager.NETWORK_TYPE_HSPAP ||
+                    subtype == TelephonyManager.NETWORK_TYPE_TD_SCDMA -> NetworkType.Mobile3G
 
             subtype == TelephonyManager.NETWORK_TYPE_LTE ||
-                subtype == TelephonyManager.NETWORK_TYPE_IWLAN -> NetworkType.Mobile4G
+                    subtype == TelephonyManager.NETWORK_TYPE_IWLAN -> NetworkType.Mobile4G
 
             subtype == TelephonyManager.NETWORK_TYPE_NR -> NetworkType.Mobile5G
 
@@ -104,7 +109,7 @@ internal class MetadataCollector(
             display.getRealSize(size)
             Size(size.x, size.y)
         }
-    } catch (_: Throwable) {
+    } catch (_: Exception) {
         Resources.getSystem()
             .displayMetrics
             .run { Size(widthPixels, heightPixels) }

@@ -9,6 +9,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.decodeFromStream
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
@@ -45,7 +47,7 @@ internal class AttributionDataSourceImpl(
     )
 
 
-    @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
+    @OptIn(InternalSerializationApi::class)
     override suspend fun getAttributionResult(): AttributionResultDto? = onIo {
         val fingerprint = fingerprintCollector.collect()
         val data = getPersistedData()
@@ -53,15 +55,14 @@ internal class AttributionDataSourceImpl(
         AttributionResultDto(fingerprintGathered = data, userAttributes = fingerprint)
     }
 
-    @InternalSerializationApi
-    private fun persistData(data: AttributionDataDto) {
+    private fun persistData(data: JsonObject) {
         preferences.edit {
             putString(ATTRIBUTION_DATA_KEY, Json.encodeToString(data))
         }
     }
 
     @InternalSerializationApi
-    private suspend fun getRemoteData(fingerprint: DeviceFingerprintDto): AttributionDataDto? {
+    private suspend fun getRemoteData(fingerprint: DeviceFingerprintDto): JsonObject? {
         log.logDebug { "fingerprint is $fingerprint" }
         val client = createOkHttpClient()
         val request = Request.Builder()
@@ -91,12 +92,22 @@ internal class AttributionDataSourceImpl(
         }
     }
 
+    @InternalSerializationApi
+    override fun decodeAttributionDataJson(json: JsonObject): AttributionDataDto? {
+        return try {
+            Json.decodeFromJsonElement<AttributionDataDto>(json)
+        } catch (e: Exception) {
+            log.logError(e) { "Failed to parse attribution data" }
+            null
+        }
+    }
+
     @OptIn(InternalSerializationApi::class)
-    private fun getPersistedData(): AttributionDataDto? =
+    private fun getPersistedData(): JsonObject? =
         preferences.getString(ATTRIBUTION_DATA_KEY, null)
             ?.let {
                 try {
-                    Json.decodeFromString<AttributionDataDto>(it)
+                    Json.decodeFromString<JsonObject>(it)
                 } catch (e: Exception) {
                     log.logError(e) { "Failed to parse attribution data" }
                     null
@@ -104,8 +115,10 @@ internal class AttributionDataSourceImpl(
             }
 
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-    private fun decodeData(response: Response): AttributionDataDto? = response.body?.byteStream()
-        ?.use { Json.decodeFromStream<AttributionDataDto>(it) }
+    private fun decodeData(response: Response): JsonObject? =
+        response.body?.byteStream()?.use { stream ->
+            Json.decodeFromStream(JsonObject.serializer(), stream)
+        }
 
     private suspend fun <T> onIo(action: suspend () -> T): T =
         withContext(Dispatchers.IO) { action() }

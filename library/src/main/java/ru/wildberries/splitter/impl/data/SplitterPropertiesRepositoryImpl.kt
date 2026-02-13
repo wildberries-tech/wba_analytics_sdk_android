@@ -95,8 +95,8 @@ internal class SplitterPropertiesRepositoryImpl(
 
     private fun updateCacheFromRemoteModels(experiments: List<SplitterGroupDto>) {
         propertiesCacheState.update {
-            experiments.associate { (type, properties) ->
-                type to properties.associate { it.key to it.value }
+            experiments.associate { group ->
+                group.type to group.properties.associate { it.key to it.value }
             }
         }
     }

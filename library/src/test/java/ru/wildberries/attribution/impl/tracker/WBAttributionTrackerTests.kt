@@ -7,8 +7,10 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.decodeFromJsonElement
 import ru.wildberries.analytics.WBAnalytics2
 import ru.wildberries.attribution.api.AttributionData
 import ru.wildberries.attribution.impl.data.AttributionDataDto
@@ -30,10 +32,14 @@ internal class WBAttributionTrackerTests : BehaviorSpec({
         val subject = WBAttributionTrackerImpl(log = logger, attributionDataSource = dataSource)
 
         And("Attribution data request succeed") {
-            val attributionData = AttributionDataDto(
-                link = "link",
-                otherFields = mapOf("key" to JsonPrimitive("value"))
+            val attributionData = JsonObject(
+                mapOf(
+                    "link" to JsonPrimitive("link"),
+                    "otherFields" to JsonObject(mapOf("key" to JsonPrimitive("value")))
+                )
             )
+            val expectedAttributionData =
+                Json.decodeFromJsonElement<AttributionDataDto>(attributionData)
             dataSource.attributionDataGetter = { attributionData }
 
             When("Check attribution invoked") {
@@ -42,7 +48,7 @@ internal class WBAttributionTrackerTests : BehaviorSpec({
 
                 Then("onResult invoked with the same attribution data") {
                     coVerify(exactly = 1) {
-                        onResult.invoke(refEq(attributionData))
+                        onResult.invoke(expectedAttributionData)
                     }
                 }
 
@@ -123,7 +129,7 @@ private suspend fun BehaviorSpecWhenContainerScope.thenAttributionNotHappened(
 @OptIn(InternalSerializationApi::class)
 private class TestAttributionDataSource : AttributionDataSource {
 
-    var attributionDataGetter: () -> AttributionDataDto? = { AttributionDataDto() }
+    var attributionDataGetter: () -> JsonObject? = { JsonObject(emptyMap()) }
     var isAttributionReceivedField = false
 
     override suspend fun getAttributionResult(): AttributionResultDto? =
@@ -147,5 +153,13 @@ private class TestAttributionDataSource : AttributionDataSource {
 
     override suspend fun setAttributionChecked() {
         isAttributionReceivedField = true
+    }
+
+    override fun decodeAttributionDataJson(json: JsonObject): AttributionDataDto? {
+        return try {
+            Json.decodeFromJsonElement<AttributionDataDto>(json)
+        } catch (e: Exception) {
+            null
+        }
     }
 }

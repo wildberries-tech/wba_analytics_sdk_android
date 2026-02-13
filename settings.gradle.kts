@@ -33,4 +33,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "wbanalytics2android"
 include("library")
-include("wbanalyticssdkdemo")
+include("demoapp")
