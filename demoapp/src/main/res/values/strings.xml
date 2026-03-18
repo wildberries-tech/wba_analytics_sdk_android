@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">WBA2 Demo</string>
+    <string name="tab_analytics">Analytics</string>
+    <string name="tab_splitter">Splitter</string>
+
+    <string name="btn_log_event">Log Event</string>
+    <string name="btn_log_events_simple">Log Events</string>
+    <string name="btn_log_events">Log Events (%1$s)</string>
+    <string name="important_suffix"> (!)</string>
+
+    <string name="label_max_events_in_batch">Max events in batch (%1$d..%2$d)</string>
+    <string name="label_max_batch_size">Max batch size, bytes (%1$d..%2$d)</string>
+    <string name="label_delay_between_batches">Delay between batches, sec (%1$d..%2$d)</string>
+    <string name="label_delay_between_ops">Delay between operations, sec (%1$d..%2$d)</string>
+    <string name="label_initial_delay">Initial delay, sec (%1$d..%2$d)</string>
+    <string name="label_max_events_in_cache">Max events in cache (%1$d..%2$d)</string>
+    <string name="label_enable_retries">Enable retries</string>
+    <string name="label_counter_id">Counter ID (from %1$d)</string>
+    <string name="label_api_key">API Key: %1$s</string>
+    <string name="label_event_name">Event Name (lat, digits, _, 1..%1$d)</string>
+    <string name="label_event_value">Event Body (JSON)</string>
+    <string name="label_param_key">Key (lat, digits, _, 1..%1$d)</string>
+    <string name="label_param_value">Value</string>
+    <string name="title_event_details">Event Details</string>
+    <string name="title_sdk_config">SDK Configuration</string>
+    <string name="title_common_params">Common Parameters</string>
+    <string name="btn_add_param">Add Parameter</string>
+    <string name="btn_restore_defaults">Restore to Defaults</string>
+    <string name="error_invalid_json">Invalid JSON format</string>
+    <string name="error_config_update_failed">Failed to update SDK configuration</string>
+    <string name="label_events_per_send">Events per send (%1$d..%2$d)</string>
+    <string name="label_important">High Priority</string>
+</resources>
