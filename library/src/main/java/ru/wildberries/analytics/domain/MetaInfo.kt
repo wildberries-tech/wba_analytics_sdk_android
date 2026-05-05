@@ -108,4 +108,9 @@ internal class MetaInfo(
      * разрешение экрана в высоту.
      * */
     val resolutionHeight: Int,
+
+    /**
+     * GAID (Google Advertising ID) устройства.
+     */
+    val deviceAdId: String,
 )

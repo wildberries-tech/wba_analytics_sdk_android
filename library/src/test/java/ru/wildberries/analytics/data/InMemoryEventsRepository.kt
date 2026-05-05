@@ -1,5 +1,6 @@
 package ru.wildberries.analytics.data
 
+import androidx.room.concurrent.AtomicInt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -11,10 +12,9 @@ import ru.wildberries.analytics.db.EventEntity
 import ru.wildberries.analytics.domain.ApiData
 import ru.wildberries.analytics.event.EventsRepository
 import ru.wildberries.analytics.util.CloseableSequence
-import java.util.concurrent.atomic.AtomicInteger
 
 internal class InMemoryEventsRepository : EventsRepository {
-    private var lastId = AtomicInteger(1)
+    private var lastId = AtomicInt(1)
     private val eventsState = MutableStateFlow(emptyMap<Int, EventEntity>())
 
     override suspend fun add(event: EventEntity) =

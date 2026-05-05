@@ -118,7 +118,6 @@ internal class WBSplitterImplTest {
         verify(exactly = 0) { repository.fetch(newConfig, any()) }
     }
 
-
     @Test
     fun `updateConfig with all flags calls all methods`() {
         onConfigChangedFlags = OnConfigChangedFlags(

@@ -23,13 +23,14 @@ import java.time.OffsetDateTime
  */
 internal class MetadataCollector(
     private val deviceInfoProvider: WBDeviceInfoProvider,
+    private val googleAdIdProvider: GoogleAdIdProvider,
     private val context: Context,
     private val clock: Clock,
 ) {
 
     private val displayResolution: Size by lazy { displayResolution() }
 
-    fun collect(): MetaInfo {
+    suspend fun collect(): MetaInfo {
         return MetaInfo(
             locale = ConfigurationCompat.getLocales(context.resources.configuration).get(0)
                 ?.toLanguageTag()
@@ -53,6 +54,7 @@ internal class MetadataCollector(
             isUserNew = deviceInfoProvider.isUserNew(),
             resolutionWidth = displayResolution.width,
             resolutionHeight = displayResolution.height,
+            deviceAdId = googleAdIdProvider.getAdvertisingId(),
         )
     }
 

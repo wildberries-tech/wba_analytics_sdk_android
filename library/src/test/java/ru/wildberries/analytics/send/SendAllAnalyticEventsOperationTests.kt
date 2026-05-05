@@ -2,12 +2,10 @@ package ru.wildberries.analytics.send
 
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.InternalSerializationApi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import ru.wildberries.analytics.NoOpWBAnalytics2Logger
@@ -25,12 +23,11 @@ import ru.wildberries.analytics.transport.Transport
 import ru.wildberries.analytics.utils.EventsFactory
 import kotlin.time.Duration
 
-@OptIn(InternalSerializationApi::class)
 internal class SendAllAnalyticEventsOperationTests {
     private lateinit var subject: SendAllAnalyticEventsOperation
     private val sentInfoDao = InMemorySentInfoDao()
     private val metadataCollector = mockk<MetadataCollector> {
-        every { collect() } returns testMetaInfo()
+        coEvery { collect() } returns testMetaInfo()
     }
     private val eventsRepository = InMemoryEventsRepository()
     private val transactionRunner = TestTransactionRunner()

@@ -1,20 +1,17 @@
 package ru.wildberries.analytics.api
 
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import ru.wildberries.analytics.toJsonObject
 import java.time.OffsetDateTime
 
-@InternalSerializationApi
 @Serializable
 internal data class BatchModel(
     val meta: Meta,
     val events: List<Event>,
 )
 
-@InternalSerializationApi
 @Serializable
 internal data class Event(
     val name: String,
@@ -38,7 +35,6 @@ internal data class Event(
     }
 }
 
-@InternalSerializationApi
 @Serializable
 internal data class Meta(
     @SerialName("locale")
@@ -108,4 +104,7 @@ internal data class Meta(
 
     @SerialName("resolution_height")
     val resolutionHeight: Int,
+
+    @SerialName("device_ad_id")
+    val deviceAdId: String,
 )

@@ -26,7 +26,7 @@ internal class SplitterRemoteDataSource(private val log: SplitterLogger) {
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun getExperiments(
-        config: WBSplitterConfig
+        config: WBSplitterConfig,
     ): List<SplitterGroupDto> {
         log.logDebug { "Requesting experiments for apiKey: ${config.apiKey}" }
 

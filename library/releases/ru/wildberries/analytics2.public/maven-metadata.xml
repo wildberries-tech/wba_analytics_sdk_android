@@ -3,15 +3,16 @@
   <groupId>ru.wildberries</groupId>
   <artifactId>analytics2.public</artifactId>
   <versioning>
-    <latest>1.0.25</latest>
-    <release>1.0.25</release>
+    <latest>1.0.35</latest>
+    <release>1.0.35</release>
     <versions>
       <version>1.0.12</version>
       <version>1.0.13</version>
       <version>1.0.23</version>
       <version>1.0.24</version>
       <version>1.0.25</version>
+      <version>1.0.35</version>
     </versions>
-    <lastUpdated>20251105083931</lastUpdated>
+    <lastUpdated>20260505131111</lastUpdated>
   </versioning>
 </metadata>

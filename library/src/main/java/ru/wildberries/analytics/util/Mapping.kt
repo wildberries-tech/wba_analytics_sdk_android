@@ -41,4 +41,5 @@ internal fun MetaInfo.toServerModel(batchNumber: Long): Meta = Meta(
     batchNumber = batchNumber.toULong(),
     resolutionWidth = resolutionWidth,
     resolutionHeight = resolutionHeight,
+    deviceAdId = deviceAdId,
 )

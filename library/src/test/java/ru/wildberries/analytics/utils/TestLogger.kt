@@ -19,4 +19,8 @@ internal class TestLogger: WBAnalytics2Logger {
     ) {
         e.printStackTrace()
     }
+
+    override fun logWarn(message: String) {
+        print("W! $message")
+    }
 }

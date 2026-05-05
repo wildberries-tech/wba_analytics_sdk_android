@@ -14,6 +14,7 @@ import ru.wildberries.analytics.db.RoomTransactionRunner
 import ru.wildberries.analytics.db.TransactionRunner
 import ru.wildberries.analytics.db.WBAnalytics2Database
 import ru.wildberries.analytics.db.WBAnalytics2Database_Impl
+import ru.wildberries.analytics.device.GoogleAdIdProvider
 import ru.wildberries.analytics.device.MetadataCollector
 import ru.wildberries.analytics.device.WBDeviceInfoProvider
 import ru.wildberries.analytics.device.WBDeviceInfoProviderImpl
@@ -39,19 +40,28 @@ private fun buildInstance(context: Context): WBAnalytics2ServiceLocator = Builde
             context = it.get()
         )
     }
+    bind {
+        GoogleAdIdProvider(
+            context = it.get(),
+            log = it.get(),
+            scopeFactory = it.get(),
+        )
+    }
     bind<WBAnalytics2Database> {
         Room.databaseBuilder(
-            it.get(),
-            WBAnalytics2Database::class.java,
-            "ru.wildberries.analytics.db"
+            context = it.get(),
+            name = "ru.wildberries.analytics.db",
+            factory = { WBAnalytics2Database_Impl() }
         )
-            .fallbackToDestructiveMigration()
+            .setQueryCoroutineContext(Dispatchers.IO.limitedParallelism(4))
+            .fallbackToDestructiveMigration(true)
             .addMigrations(*Migrations().all)
             .build()
     }
     bind {
         MetadataCollector(
             deviceInfoProvider = it.get(),
+            googleAdIdProvider = it.get(),
             context = it.get(),
             clock = it.get(),
         )

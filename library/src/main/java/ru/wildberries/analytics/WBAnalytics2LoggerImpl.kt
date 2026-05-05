@@ -36,4 +36,13 @@ internal class WBAnalytics2LoggerImpl : WBAnalytics2Logger {
             customLogger.logError(e, details)
         }
     }
+
+    override fun logWarn(message: String) {
+        val customLogger = wbAnalytics2CustomLogger
+        if (customLogger == null) {
+            Log.w(tag, message)
+        } else {
+            customLogger.logWarn(message)
+        }
+    }
 }

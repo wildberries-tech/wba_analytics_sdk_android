@@ -13,7 +13,7 @@ internal interface SplitterPropertiesRepository {
     fun observeProperty(type: String, key: String): Flow<String?>
     fun fetch(
         config: WBSplitterConfig,
-        force: Boolean = false
+        force: Boolean = false,
     )
 
     fun updateInMemoryCacheFromLocalSource(apiKey: String)

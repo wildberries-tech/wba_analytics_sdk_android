@@ -5,21 +5,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.test.TestCoroutineScheduler
-import kotlinx.serialization.InternalSerializationApi
 import ru.wildberries.analytics.device.DeviceId
 import ru.wildberries.analytics.domain.MetaInfo
 import ru.wildberries.analytics.domain.NetworkType
 import ru.wildberries.analytics.util.toServerModel
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import kotlin.coroutines.coroutineContext
 
 internal fun testDate() = OffsetDateTime.of(2020, 9, 11, 13, 30, 45, 0, ZoneOffset.of("+4"))
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal suspend fun virtualTime() = coroutineContext[TestCoroutineScheduler]!!.currentTime
+internal suspend fun virtualTime() = currentCoroutineContext()[TestCoroutineScheduler]!!.currentTime
 
 internal class TestCoroutineLogger {
 
@@ -38,7 +37,6 @@ internal class TestScopeFactory(private val parentScope: CoroutineScope) : Corou
     }
 }
 
-@OptIn(InternalSerializationApi::class)
 internal fun testMeta(batchNumber: Long = 1L) = testMetaInfo().toServerModel(batchNumber)
 
 internal fun testMetaInfo() = MetaInfo(
@@ -60,4 +58,5 @@ internal fun testMetaInfo() = MetaInfo(
     isUserNew = false,
     resolutionWidth = 560,
     resolutionHeight = 1000,
+    deviceAdId = "deviceAdId",
 )

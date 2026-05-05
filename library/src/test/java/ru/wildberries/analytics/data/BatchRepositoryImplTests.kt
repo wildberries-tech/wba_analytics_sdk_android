@@ -2,10 +2,8 @@ package ru.wildberries.analytics.data
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import ru.wildberries.analytics.TestTransactionRunner
@@ -31,7 +29,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-@OptIn(InternalSerializationApi::class)
+@Suppress("Unused")
 internal class BatchRepositoryImplTests : BehaviorSpec({
 
     val apiData = ApiData(apiUrl = "apiUrl", apiKey = "apiKey")
@@ -127,7 +125,7 @@ private fun createBatchRepository(
 ): BatchRepositoryImpl {
     val meta = testMetaInfo()
     val metaCollector: MetadataCollector = mockk {
-        every { collect() } returns meta
+        coEvery { collect() } returns meta
     }
     val transactionRunner: TransactionRunner = TestTransactionRunner()
     val eventsRepository: EventsRepository = mockk {
@@ -145,7 +143,6 @@ private fun createBatchRepository(
     )
 }
 
-@OptIn(InternalSerializationApi::class)
 private fun List<EventEntity>.mapToEvents(startEventNum: Long): List<Event> =
     mapIndexed { index, eventEntity -> eventEntity.toServerModel(startEventNum + index) }
 
@@ -165,7 +162,7 @@ private fun createSentDao() = object : SentInfoDao {
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class, InternalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class)
 private val BatchModel.contentLength: Int
     get() = ContentLengthCountingStream().use { stream ->
         Json.encodeToStream(this, stream)

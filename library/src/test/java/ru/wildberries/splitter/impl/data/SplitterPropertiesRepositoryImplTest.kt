@@ -126,7 +126,6 @@ internal class SplitterPropertiesRepositoryImplTest {
         coEvery { remoteDataSource.getExperiments(config) } returns experiments
         SplitterPropertiesRepositoryImpl.updateFetchTimestampForApiKey(config.apiKey, null)
 
-
         val flow = repository.observeProperties("type")
         val initialProperties = flow.first()
         assertEquals(emptyMap(), initialProperties)

@@ -1,7 +1,6 @@
 package ru.wildberries.analytics
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.mockk.MockKMatcherScope
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi

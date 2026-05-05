@@ -66,7 +66,6 @@ public interface WBSplitter {
 
     public fun updateConfig(update: WBSplitterConfig.() -> WBSplitterConfig)
 
-
     /**
      * Request experiments fetch softly.
      * If there are another fetch for this splitter in progress, than this one not started.
@@ -112,7 +111,7 @@ public interface WBSplitter {
 
 private fun defaultOnConfigChangedFlags(
     old: WBSplitterConfig,
-    new: WBSplitterConfig
+    new: WBSplitterConfig,
 ): OnConfigChangedFlags = OnConfigChangedFlags(
     forceFetch = old != new,
     updateCacheFromLocalSource = old.apiKey != new.apiKey,

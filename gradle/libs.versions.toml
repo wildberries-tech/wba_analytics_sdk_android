@@ -5,17 +5,15 @@ ksp = "2.0.21-1.0.28"
 kotlinx-serialization = "1.7.3" # https://github.com/Kotlin/kotlinx.serialization/releases
 kotlinx-coroutines = "1.8.1" # https://github.com/Kotlin/kotlinx.coroutines/releases
 room = "2.7.2"
+detekt = "1.23.8"
 kotest = "5.8.0"
 lifecycle = "2.8.5"
 junit-jupiter = "5.8.1"
+chucker = "4.0.0"
 activityCompose = "1.10.0"
 composeBom = "2026.02.00"
 
 [libraries]
-androidx-core-ktx = "androidx.core:core-ktx:1.9.0"
-androidx-startup = "androidx.startup:startup-runtime:1.2.0"
-android-desugaring = "com.android.tools:desugar_jdk_libs:2.0.4"
-
 # Compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -33,7 +31,13 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 
+# Android other
+androidx-core-ktx = "androidx.core:core-ktx:1.9.0"
+androidx-startup = "androidx.startup:startup-runtime:1.2.0"
+android-desugaring = "com.android.tools:desugar_jdk_libs:2.0.4"
+
 # Other
+chucker = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-collections = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
@@ -47,6 +51,7 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 mockk = "io.mockk:mockk:1.13.2"
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 
 [plugins]
 android-app = { id = "com.android.application", version.ref = "agp" }
@@ -55,3 +60,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+

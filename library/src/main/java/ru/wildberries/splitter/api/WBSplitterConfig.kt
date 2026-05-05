@@ -12,5 +12,5 @@ public data class WBSplitterConfig(
     val fetchUrl: String,
     val userId: String,
     val clientId: String? = null,
-    val appVersion: String? = null
+    val appVersion: String? = null,
 )

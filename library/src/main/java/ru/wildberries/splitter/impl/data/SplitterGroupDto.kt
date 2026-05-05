@@ -7,12 +7,12 @@ import kotlinx.serialization.Serializable
 @OptIn(InternalSerializationApi::class)
 internal class SplitterPropertyDto(
     val key: String,
-    val value: String
+    val value: String,
 )
 
 @Serializable
 @OptIn(InternalSerializationApi::class)
 internal class SplitterGroupDto(
     val type: String,
-    val properties: List<SplitterPropertyDto>
+    val properties: List<SplitterPropertyDto>,
 )

@@ -9,6 +9,8 @@ public interface WBAnalytics2Logger {
     public fun logException(e: Exception)
 
     public fun logError(e: Error, details: Map<String, String>)
+
+    public fun logWarn(message: String)
 }
 
 internal inline fun WBAnalytics2Logger.logDebug(lambda: () -> String) {
@@ -47,5 +49,11 @@ internal inline fun WBAnalytics2Logger.logError(builder: ErrorLogBuilder.() -> U
         errorLogBuilder.builder()
         val (error, details) = errorLogBuilder.build()
         logError(error, details)
+    }
+}
+
+internal inline fun WBAnalytics2Logger.logWarn(lazyMessage: () -> String) {
+    if (isEnabled) {
+        logWarn(lazyMessage())
     }
 }

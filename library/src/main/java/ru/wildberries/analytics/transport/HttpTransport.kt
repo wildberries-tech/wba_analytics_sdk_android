@@ -77,7 +77,7 @@ public class HttpTransport(private val callFactory: Call.Factory) : Transport {
                 try {
                     cancel()
                 } catch (_: Throwable) {
-                    //Ignore cancel exception
+                    // Ignore cancel exception
                 }
             }
         }

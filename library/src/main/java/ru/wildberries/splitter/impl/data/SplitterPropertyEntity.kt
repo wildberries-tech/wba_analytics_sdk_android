@@ -10,5 +10,5 @@ internal data class SplitterPropertyEntity(
     val apiKey: String,
     val abTestGroupType: String,
     val key: String,
-    val value: String
+    val value: String,
 )

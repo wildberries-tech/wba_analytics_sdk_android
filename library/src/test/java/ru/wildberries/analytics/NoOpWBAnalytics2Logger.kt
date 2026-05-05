@@ -11,4 +11,6 @@ internal object NoOpWBAnalytics2Logger : WBAnalytics2Logger {
         e: Error,
         details: Map<String, String>
     ) = Unit
+
+    override fun logWarn(message: String) = Unit
 }

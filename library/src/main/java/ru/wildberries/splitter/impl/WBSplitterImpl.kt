@@ -10,7 +10,7 @@ internal class WBSplitterImpl internal constructor(
     private val repository: SplitterPropertiesRepository,
     private var config: WBSplitterConfig,
     private val getOnConfigChangedFlags: (old: WBSplitterConfig, new: WBSplitterConfig) -> OnConfigChangedFlags,
-    logger: SplitterLogger
+    logger: SplitterLogger,
 ) : WBSplitter {
 
     init {

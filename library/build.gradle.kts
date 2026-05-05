@@ -3,10 +3,21 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.detekt)
     id("maven-publish")
 }
 
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom("$rootDir/config/detekt/detekt.yml")
+    baseline = file("detekt-baseline.xml")
+    parallel = true
+}
+
 dependencies {
+    detektPlugins(libs.detekt.formatting)
+
     // PUBLIC API
     api(libs.kotlinx.serialization.json)
 
@@ -88,7 +99,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "ru.wildberries"
             artifactId = "analytics2.public"
-            version = System.getenv("wb.analytics.version") ?: "1.0.29"
+            version = System.getenv("wb.analytics.version") ?: "1.0.35"
 
             afterEvaluate {
                 from(components["release"])

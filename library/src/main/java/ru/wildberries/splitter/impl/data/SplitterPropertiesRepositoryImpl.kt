@@ -34,7 +34,7 @@ internal class SplitterPropertiesRepositoryImpl(
 
     override fun fetch(
         config: WBSplitterConfig,
-        force: Boolean
+        force: Boolean,
     ) {
         val apiKey = config.apiKey
         if (force) {
