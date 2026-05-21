@@ -1,5 +1,5 @@
-# WB Analytics 2 Android Client
-[![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README.md)
+# Wild Analytics Android Client
+[![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wild_analytics_sdk_android/blob/develop/README.md)
 
 Android client library for Wildberries analytics.
 
@@ -11,18 +11,18 @@ For now, download the aar [from here](library/releases/ru/wildberries/analytics2
 
 ### Getting an Instance
 
-Usually, an instance of `WBAnalytics2` is provided via DI (e.g., Hilt/Dagger):
+Usually, an instance of `WildAnalytics` is provided via DI (e.g., Hilt/Dagger):
 
 ```kotlin
 @Inject
-lateinit var wba: WBAnalytics2
+lateinit var analytics: WildAnalytics
 ```
 
 Or you can create it manually:
 
 ```kotlin
-val analytics = WBAnalytics2(
-    apiUrlProvider = { "https://wba.wb.ru/m/batch" }, // URL for sending events
+val analytics = WildAnalytics(
+    apiUrlProvider = { "https://analytics.wb.ru/m/batch" }, // URL for sending events
     apiKey = "YOUR_API_KEY",                        // Your API key
     isCollectionEnabled = true                      // Enable/disable event collection
 )
@@ -31,7 +31,7 @@ val analytics = WBAnalytics2(
 In real projects, DI and providers are often used, where parameters can be substituted dynamically, for example:
 
 ```kotlin
-return WBAnalytics2(
+return WildAnalytics(
     apiUrlProvider = { infraLocalizationUrlOverride.overrideIfNeeded(DEFAULT_PROD_URL) },
     apiKey = "YOUR_API_KEY",
     isCollectionEnabled = true,
@@ -41,16 +41,16 @@ return WBAnalytics2(
 **Constructor parameters explanation:**
 
 - `apiUrlProvider` — function returning the URL for sending analytics (usually
-  `"https://wba.wb.ru/m/batch"`).
+  `"https://analytics.wb.ru/m/batch"`).
 - `apiKey` — API key for authentication in the analytics service.
 - `isCollectionEnabled` — flag that controls whether event processing is enabled by default (can be changed at runtime).
 
-## Analytics Configuration (WBA2Config)
+## Analytics Configuration (WildAnalyticsConfig)
 
-The current version uses the standard configuration `WBA2Config.Default`, whose parameters are optimized for library operation.  
+The current version uses the standard configuration `WildAnalyticsConfig.Default`, whose parameters are optimized for library operation.  
 In the future, it will be possible to configure these externally.
 
-### Default values (WBA2Config.Default):
+### Default values (WildAnalyticsConfig.Default):
 
 - **delays: SendingDelays**
     - `delayBetweenBatches = 2 seconds` — delay between sending event batches.
@@ -78,17 +78,17 @@ In the future, it will be possible to configure these externally.
 #### Simple Event
 
 ```kotlin
-wba.logEvent("screen_open", mapOf("screen" to "Main"))
+analytics.logEvent("screen_open", mapOf("screen" to "Main"))
 ```
 
 #### Complex Event (e.g., purchase)
 
 > **Note:**  
 > [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) is used for serializing complex parameters and building JSON structures.  
-> It is already included in WBAnalytics2 dependencies, but if you create your own structures, ensure it’s available in your project.
+> It is already included in WildAnalytics dependencies, but if you create your own structures, ensure it’s available in your project.
 
 ```kotlin
-wba.logEvent(
+analytics.logEvent(
     name = "purchase",
     parameters = buildJsonObject(
         buildJsonObject {
@@ -113,20 +113,20 @@ wba.logEvent(
 #### Setting Common Parameters
 
 ```kotlin
-wba.setCommonParameter("client_id", "123")
-wba.setCommonParameters(mapOf("user_id" to "456", "app_version" to "1.2.3"))
+analytics.setCommonParameter("client_id", "123")
+analytics.setCommonParameters(mapOf("user_id" to "456", "app_version" to "1.2.3"))
 ```
 
 #### Enable/Disable Event Collection
 
 ```kotlin
-wba.isCollectionEnabled = false // or true
+analytics.isCollectionEnabled = false // or true
 ```
 
 #### Finish Analytics Permanently
 
 ```kotlin
-wba.finish()
+analytics.finish()
 ```
 
 ### Parameter Description
@@ -139,16 +139,16 @@ wba.finish()
 ### Real Code Examples
 
 - Screen open:  
-  `wba.logEvent("Lottery_V", mapOf("name" to "Lottery", "circulation" to "123"))`
+  `analytics.logEvent("Lottery_V", mapOf("name" to "Lottery", "circulation" to "123"))`
 - Purchase:  
   (see example above)
 - Banner click:  
-  `wba.logEvent("Banner_T", mapOf("banner_id" to "789", "location" to "main"))`
+  `analytics.logEvent("Banner_T", mapOf("banner_id" to "789", "location" to "main"))`
 
 ## FAQ
 
 - **Can I call methods from different threads?**  
-  Yes, all WBAnalytics2 public methods are thread-safe.
+  Yes, all WildAnalytics public methods are thread-safe.
 - **How to specify apiKey?**  
   Via constructor parameter or DI.
 - **How to add a custom token?**  
@@ -158,23 +158,23 @@ wba.finish()
 - **How to stop event collection?**  
   Call `finish()`. After that, the process cannot be resumed.
 
-# WB Attribution Tracker
+# Wild Attribution Tracker
 
 Part of the library starting from version 1.0.12.
 
 ## Adding the Library
 
-Same as [adding the wb analytics client](#adding-the-library).
+Same as [adding the wild analytics client](#adding-the-library).
 
 ## Using the Library
 
 ### Creating an Instance
 
 ```kotlin
-WBAttributionTracker.Factory.create(
+WildAttributionTracker.Factory.create(
     context = context, // application context
     withSystemLogs = BuildConfig.DEBUG, // whether to send system logs
-    systemLogsTag = "WBAttribution", // log tag
+    systemLogsTag = "WildAttribution", // log tag
 )
 ```
 
@@ -182,7 +182,7 @@ WBAttributionTracker.Factory.create(
 
 ```kotlin
 attributionTracker.checkAttribution(
-    analytics = wba2, // analytics instance for logging "app_install"
+    analytics = analytics, // analytics instance for logging "app_install"
     onResult = { data: AttributionData? -> // called once with attribution data or null if no matching ad link
         val link = data?.link
         if (link != null) {

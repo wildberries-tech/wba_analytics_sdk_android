@@ -4,58 +4,58 @@
   <CurrentIssues>
     <ID>ArgumentListWrapping:SendAllAnalyticEventsOperation.kt$SendAllAnalyticEventsOperation$("Sending ${eventIds.size} events ($eventNumber - ${eventNumber + eventIds.lastIndex.toULong()} event_num) with $batchNumber batch_number, ${batch.contentLength} byte size")</ID>
     <ID>BracesOnIfStatements:Util.kt$if</ID>
-    <ID>BracesOnIfStatements:WBAnalytics2Impl.kt$WBAnalytics2Impl$if</ID>
-    <ID>FinalNewline:AttributionStrategy.kt$ru.wildberries.attribution.api.AttributionStrategy.kt</ID>
-    <ID>FinalNewline:ConfigRepository.kt$ru.wildberries.analytics.config.ConfigRepository.kt</ID>
-    <ID>FinalNewline:ConfigRepositoryImpl.kt$ru.wildberries.analytics.config.ConfigRepositoryImpl.kt</ID>
-    <ID>FinalNewline:HttpTransport.kt$ru.wildberries.analytics.transport.HttpTransport.kt</ID>
-    <ID>FinalNewline:InMemoryEventsRepository.kt$ru.wildberries.analytics.data.InMemoryEventsRepository.kt</ID>
-    <ID>FinalNewline:InMemorySentInfoDao.kt$ru.wildberries.analytics.db.InMemorySentInfoDao.kt</ID>
-    <ID>FinalNewline:NoOpWBAnalytics2Logger.kt$ru.wildberries.analytics.NoOpWBAnalytics2Logger.kt</ID>
-    <ID>FinalNewline:ProcessForegroundData.kt$ru.wildberries.analytics.util.ProcessForegroundData.kt</ID>
-    <ID>FinalNewline:SendAllAnalyticEventsOperation.kt$ru.wildberries.analytics.send.SendAllAnalyticEventsOperation.kt</ID>
-    <ID>FinalNewline:SendAllAnalyticEventsOperationTests.kt$ru.wildberries.analytics.send.SendAllAnalyticEventsOperationTests.kt</ID>
-    <ID>FinalNewline:SendAllEventsOperationJobService.kt$ru.wildberries.analytics.send.SendAllEventsOperationJobService.kt</ID>
-    <ID>FinalNewline:SendOperationScheduler.kt$ru.wildberries.analytics.send.SendOperationScheduler.kt</ID>
-    <ID>FinalNewline:SendStrategy.kt$ru.wildberries.analytics.send.SendStrategy.kt</ID>
-    <ID>FinalNewline:SendStrategyProvider.kt$ru.wildberries.analytics.send.SendStrategyProvider.kt</ID>
-    <ID>FinalNewline:SendStrategyProviderTests.kt$ru.wildberries.analytics.send.SendStrategyProviderTests.kt</ID>
-    <ID>FinalNewline:TestLogger.kt$ru.wildberries.analytics.utils.TestLogger.kt</ID>
-    <ID>FinalNewline:Transport.kt$ru.wildberries.analytics.transport.Transport.kt</ID>
-    <ID>FinalNewline:Util.kt$ru.wildberries.analytics.Util.kt</ID>
-    <ID>FinalNewline:WBAnalytics2ProductTest.kt$ru.wildberries.analytics.WBAnalytics2ProductTest.kt</ID>
-    <ID>FinalNewline:WBAnalytics2SenderServiceTest.kt$ru.wildberries.analytics.send.WBAnalytics2SenderServiceTest.kt</ID>
-    <ID>FinalNewline:WBAttributionLogger.kt$ru.wildberries.attribution.api.WBAttributionLogger.kt</ID>
-    <ID>FinalNewline:WBAttributionTracker.kt$ru.wildberries.attribution.api.WBAttributionTracker.kt</ID>
-    <ID>FunctionNaming:Util.kt$public fun WBAnalytics2( context: Context, apiUrlProvider: () -&gt; ApiUrl = { DEFAULT_PROD_URL }, apiKey: ApiKey, isCollectionEnabled: Boolean = true, isAttributionTrackingEnabled: Boolean = false, handleAttributionLink: suspend (link: String) -&gt; Unit = {} )</ID>
-    <ID>LongMethod:WBAnalytics2ServiceLocator.kt$@OptIn(ExperimentalCoroutinesApi::class) private fun buildInstance(context: Context): WBAnalytics2ServiceLocator</ID>
+    <ID>BracesOnIfStatements:WildAnalyticsImpl.kt$WildAnalyticsImpl$if</ID>
+    <ID>FinalNewline:AttributionStrategy.kt$ru.wildanalytics.pub.attribution.api.AttributionStrategy.kt</ID>
+    <ID>FinalNewline:ConfigRepository.kt$ru.wildanalytics.pub.analytics.config.ConfigRepository.kt</ID>
+    <ID>FinalNewline:ConfigRepositoryImpl.kt$ru.wildanalytics.pub.analytics.config.ConfigRepositoryImpl.kt</ID>
+    <ID>FinalNewline:HttpTransport.kt$ru.wildanalytics.pub.analytics.transport.HttpTransport.kt</ID>
+    <ID>FinalNewline:InMemoryEventsRepository.kt$ru.wildanalytics.pub.analytics.data.InMemoryEventsRepository.kt</ID>
+    <ID>FinalNewline:InMemorySentInfoDao.kt$ru.wildanalytics.pub.analytics.db.InMemorySentInfoDao.kt</ID>
+    <ID>FinalNewline:NoOpWildAnalyticsLogger.kt$ru.wildanalytics.pub.analytics.NoOpWildAnalyticsLogger.kt</ID>
+    <ID>FinalNewline:ProcessForegroundData.kt$ru.wildanalytics.pub.analytics.util.ProcessForegroundData.kt</ID>
+    <ID>FinalNewline:SendAllAnalyticEventsOperation.kt$ru.wildanalytics.pub.analytics.send.SendAllAnalyticEventsOperation.kt</ID>
+    <ID>FinalNewline:SendAllAnalyticEventsOperationTests.kt$ru.wildanalytics.pub.analytics.send.SendAllAnalyticEventsOperationTests.kt</ID>
+    <ID>FinalNewline:SendAllEventsOperationJobService.kt$ru.wildanalytics.pub.analytics.send.SendAllEventsOperationJobService.kt</ID>
+    <ID>FinalNewline:SendOperationScheduler.kt$ru.wildanalytics.pub.analytics.send.SendOperationScheduler.kt</ID>
+    <ID>FinalNewline:SendStrategy.kt$ru.wildanalytics.pub.analytics.send.SendStrategy.kt</ID>
+    <ID>FinalNewline:SendStrategyProvider.kt$ru.wildanalytics.pub.analytics.send.SendStrategyProvider.kt</ID>
+    <ID>FinalNewline:SendStrategyProviderTests.kt$ru.wildanalytics.pub.analytics.send.SendStrategyProviderTests.kt</ID>
+    <ID>FinalNewline:TestLogger.kt$ru.wildanalytics.pub.analytics.utils.TestLogger.kt</ID>
+    <ID>FinalNewline:Transport.kt$ru.wildanalytics.pub.analytics.transport.Transport.kt</ID>
+    <ID>FinalNewline:Util.kt$ru.wildanalytics.pub.analytics.Util.kt</ID>
+    <ID>FinalNewline:WildAnalyticsProductTest.kt$ru.wildanalytics.pub.analytics.WildAnalyticsProductTest.kt</ID>
+    <ID>FinalNewline:WildAnalyticsSenderServiceTest.kt$ru.wildanalytics.pub.analytics.send.WildAnalyticsSenderServiceTest.kt</ID>
+    <ID>FinalNewline:WildAttributionLogger.kt$ru.wildanalytics.pub.attribution.api.WildAttributionLogger.kt</ID>
+    <ID>FinalNewline:WildAttributionTracker.kt$ru.wildanalytics.pub.attribution.api.WildAttributionTracker.kt</ID>
+    <ID>FunctionNaming:Util.kt$public fun WildAnalytics( context: Context, apiUrlProvider: () -&gt; ApiUrl = { DEFAULT_PROD_URL }, apiKey: ApiKey, isCollectionEnabled: Boolean = true, isAttributionTrackingEnabled: Boolean = false, handleAttributionLink: suspend (link: String) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:WildAnalyticsServiceLocator.kt$@OptIn(ExperimentalCoroutinesApi::class) private fun buildInstance(context: Context): WildAnalyticsServiceLocator</ID>
     <ID>MaxLineLength:EventsRepositoryImpl.kt$EventsRepositoryImpl$log.logDebug { "Events in database($count) more than allowed($allowedEventsInCacheCount). Remove first exceeded($exceededCount)" }</ID>
     <ID>MaxLineLength:SendAllAnalyticEventsOperation.kt$SendAllAnalyticEventsOperation$log.logDebug { "Processing batch for API URL: ${apiData.apiUrl} events count ${batch.eventIds.size}, content length ${batch.contentLength}" }</ID>
     <ID>MaxLineLength:SendAllAnalyticEventsOperation.kt$SendAllAnalyticEventsOperation$log.logDebug("Sending ${eventIds.size} events ($eventNumber - ${eventNumber + eventIds.lastIndex.toULong()} event_num) with $batchNumber batch_number, ${batch.contentLength} byte size")</ID>
     <ID>MaxLineLength:SendStrategyProvider.kt$SendStrategyProvider$*</ID>
-    <ID>MaxLineLength:WBAnalytics2Product.kt$WBAnalytics2Product$*</ID>
-    <ID>NewLineAtEndOfFile:AttributionStrategy.kt$ru.wildberries.attribution.api.AttributionStrategy.kt</ID>
-    <ID>NewLineAtEndOfFile:ConfigRepository.kt$ru.wildberries.analytics.config.ConfigRepository.kt</ID>
-    <ID>NewLineAtEndOfFile:ConfigRepositoryImpl.kt$ru.wildberries.analytics.config.ConfigRepositoryImpl.kt</ID>
-    <ID>NewLineAtEndOfFile:HttpTransport.kt$ru.wildberries.analytics.transport.HttpTransport.kt</ID>
-    <ID>NewLineAtEndOfFile:InMemoryEventsRepository.kt$ru.wildberries.analytics.data.InMemoryEventsRepository.kt</ID>
-    <ID>NewLineAtEndOfFile:InMemorySentInfoDao.kt$ru.wildberries.analytics.db.InMemorySentInfoDao.kt</ID>
-    <ID>NewLineAtEndOfFile:NoOpWBAnalytics2Logger.kt$ru.wildberries.analytics.NoOpWBAnalytics2Logger.kt</ID>
-    <ID>NewLineAtEndOfFile:ProcessForegroundData.kt$ru.wildberries.analytics.util.ProcessForegroundData.kt</ID>
-    <ID>NewLineAtEndOfFile:SendAllAnalyticEventsOperation.kt$ru.wildberries.analytics.send.SendAllAnalyticEventsOperation.kt</ID>
-    <ID>NewLineAtEndOfFile:SendAllAnalyticEventsOperationTests.kt$ru.wildberries.analytics.send.SendAllAnalyticEventsOperationTests.kt</ID>
-    <ID>NewLineAtEndOfFile:SendAllEventsOperationJobService.kt$ru.wildberries.analytics.send.SendAllEventsOperationJobService.kt</ID>
-    <ID>NewLineAtEndOfFile:SendOperationScheduler.kt$ru.wildberries.analytics.send.SendOperationScheduler.kt</ID>
-    <ID>NewLineAtEndOfFile:SendStrategy.kt$ru.wildberries.analytics.send.SendStrategy.kt</ID>
-    <ID>NewLineAtEndOfFile:SendStrategyProvider.kt$ru.wildberries.analytics.send.SendStrategyProvider.kt</ID>
-    <ID>NewLineAtEndOfFile:SendStrategyProviderTests.kt$ru.wildberries.analytics.send.SendStrategyProviderTests.kt</ID>
-    <ID>NewLineAtEndOfFile:TestLogger.kt$ru.wildberries.analytics.utils.TestLogger.kt</ID>
-    <ID>NewLineAtEndOfFile:Transport.kt$ru.wildberries.analytics.transport.Transport.kt</ID>
-    <ID>NewLineAtEndOfFile:Util.kt$ru.wildberries.analytics.Util.kt</ID>
-    <ID>NewLineAtEndOfFile:WBAnalytics2ProductTest.kt$ru.wildberries.analytics.WBAnalytics2ProductTest.kt</ID>
-    <ID>NewLineAtEndOfFile:WBAnalytics2SenderServiceTest.kt$ru.wildberries.analytics.send.WBAnalytics2SenderServiceTest.kt</ID>
-    <ID>NewLineAtEndOfFile:WBAttributionLogger.kt$ru.wildberries.attribution.api.WBAttributionLogger.kt</ID>
-    <ID>NewLineAtEndOfFile:WBAttributionTracker.kt$ru.wildberries.attribution.api.WBAttributionTracker.kt</ID>
+    <ID>MaxLineLength:WildAnalyticsProduct.kt$WildAnalyticsProduct$*</ID>
+    <ID>NewLineAtEndOfFile:AttributionStrategy.kt$ru.wildanalytics.pub.attribution.api.AttributionStrategy.kt</ID>
+    <ID>NewLineAtEndOfFile:ConfigRepository.kt$ru.wildanalytics.pub.analytics.config.ConfigRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:ConfigRepositoryImpl.kt$ru.wildanalytics.pub.analytics.config.ConfigRepositoryImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:HttpTransport.kt$ru.wildanalytics.pub.analytics.transport.HttpTransport.kt</ID>
+    <ID>NewLineAtEndOfFile:InMemoryEventsRepository.kt$ru.wildanalytics.pub.analytics.data.InMemoryEventsRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:InMemorySentInfoDao.kt$ru.wildanalytics.pub.analytics.db.InMemorySentInfoDao.kt</ID>
+    <ID>NewLineAtEndOfFile:NoOpWildAnalyticsLogger.kt$ru.wildanalytics.pub.analytics.NoOpWildAnalyticsLogger.kt</ID>
+    <ID>NewLineAtEndOfFile:ProcessForegroundData.kt$ru.wildanalytics.pub.analytics.util.ProcessForegroundData.kt</ID>
+    <ID>NewLineAtEndOfFile:SendAllAnalyticEventsOperation.kt$ru.wildanalytics.pub.analytics.send.SendAllAnalyticEventsOperation.kt</ID>
+    <ID>NewLineAtEndOfFile:SendAllAnalyticEventsOperationTests.kt$ru.wildanalytics.pub.analytics.send.SendAllAnalyticEventsOperationTests.kt</ID>
+    <ID>NewLineAtEndOfFile:SendAllEventsOperationJobService.kt$ru.wildanalytics.pub.analytics.send.SendAllEventsOperationJobService.kt</ID>
+    <ID>NewLineAtEndOfFile:SendOperationScheduler.kt$ru.wildanalytics.pub.analytics.send.SendOperationScheduler.kt</ID>
+    <ID>NewLineAtEndOfFile:SendStrategy.kt$ru.wildanalytics.pub.analytics.send.SendStrategy.kt</ID>
+    <ID>NewLineAtEndOfFile:SendStrategyProvider.kt$ru.wildanalytics.pub.analytics.send.SendStrategyProvider.kt</ID>
+    <ID>NewLineAtEndOfFile:SendStrategyProviderTests.kt$ru.wildanalytics.pub.analytics.send.SendStrategyProviderTests.kt</ID>
+    <ID>NewLineAtEndOfFile:TestLogger.kt$ru.wildanalytics.pub.analytics.utils.TestLogger.kt</ID>
+    <ID>NewLineAtEndOfFile:Transport.kt$ru.wildanalytics.pub.analytics.transport.Transport.kt</ID>
+    <ID>NewLineAtEndOfFile:Util.kt$ru.wildanalytics.pub.analytics.Util.kt</ID>
+    <ID>NewLineAtEndOfFile:WildAnalyticsProductTest.kt$ru.wildanalytics.pub.analytics.WildAnalyticsProductTest.kt</ID>
+    <ID>NewLineAtEndOfFile:WildAnalyticsSenderServiceTest.kt$ru.wildanalytics.pub.analytics.send.WildAnalyticsSenderServiceTest.kt</ID>
+    <ID>NewLineAtEndOfFile:WildAttributionLogger.kt$ru.wildanalytics.pub.attribution.api.WildAttributionLogger.kt</ID>
+    <ID>NewLineAtEndOfFile:WildAttributionTracker.kt$ru.wildanalytics.pub.attribution.api.WildAttributionTracker.kt</ID>
     <ID>NoBlankLineBeforeRbrace:RetryPolicy.kt$RetryPolicy$ </ID>
     <ID>NoConsecutiveBlankLines:AttributionDataSourceImpl.kt$AttributionDataSourceImpl$ </ID>
     <ID>NoConsecutiveBlankLines:BatchData.kt$ </ID>
@@ -63,27 +63,27 @@
     <ID>NoConsecutiveBlankLines:BatchingConfig.kt$ </ID>
     <ID>NoConsecutiveBlankLines:HttpTransport.kt$ </ID>
     <ID>NoConsecutiveBlankLines:RetryPolicy.kt$ </ID>
-    <ID>NoConsecutiveBlankLines:WBA2Config.kt$ </ID>
-    <ID>NoConsecutiveBlankLines:WBAttributionTrackerTests.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:WildAnalyticsConfig.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:WildAttributionTrackerTests.kt$ </ID>
     <ID>NoMultipleSpaces:Utils.kt$TestScopeFactory$ </ID>
     <ID>NoSemicolons:SendAllAnalyticEventsOperation.kt$SendAllAnalyticEventsOperation.SendResult.CriticalFail$;</ID>
-    <ID>NoTrailingSpaces:WBAnalytics2ProductTest.kt$ </ID>
-    <ID>PackageName:FeatureInitializer.kt$package ru.wildberries.WBAnalytics2</ID>
-    <ID>PackageNaming:FeatureInitializer.kt$package ru.wildberries.WBAnalytics2</ID>
+    <ID>NoTrailingSpaces:WildAnalyticsProductTest.kt$ </ID>
+    <ID>PackageName:FeatureInitializer.kt$package ru.wildanalytics.pub.WildAnalytics</ID>
+    <ID>PackageNaming:FeatureInitializer.kt$package ru.wildanalytics.pub.WildAnalytics</ID>
     <ID>SpacingAroundColon:TestLogger.kt$TestLogger$:</ID>
     <ID>SpacingAroundComma:AttributionDataSerializeTests.kt$AttributionDataSerializeTests$,</ID>
-    <ID>SpacingAroundKeyword:WBAttributionTrackerImpl.kt$WBAttributionTrackerImpl$if</ID>
+    <ID>SpacingAroundKeyword:WildAttributionTrackerImpl.kt$WildAttributionTrackerImpl$if</ID>
     <ID>SpacingAroundOperators:HttpTimeouts.kt$HttpTimeouts$=</ID>
-    <ID>SpreadOperator:WBAnalytics2ServiceLocator.kt$(*Migrations().all)</ID>
+    <ID>SpreadOperator:WildAnalyticsServiceLocator.kt$(*Migrations().all)</ID>
     <ID>StringShouldBeRawString:AttributionDataSerializeTests.kt$AttributionDataSerializeTests$"{\"counterId\":\"1000\",\"link\":\"link\",\"key1\":\"field1\",\"key2\":\"field2\"}"</ID>
     <ID>StringTemplate:DeviceFingerprintCollector.kt$DeviceFingerprintCollector$${heightPixels}</ID>
-    <ID>TooGenericExceptionThrown:WBAttributionTrackerTests.kt$WBAttributionTrackerTests$throw RuntimeException()</ID>
+    <ID>TooGenericExceptionThrown:WildAttributionTrackerTests.kt$WildAttributionTrackerTests$throw RuntimeException()</ID>
     <ID>TrailingCommaOnDeclarationSite:AttributionDataDto.kt$AttributionDataSerializer$( encoder: Encoder, value: AttributionDataDto )</ID>
     <ID>TrailingCommaOnDeclarationSite:AttributionResultDto.kt$AttributionResultDto$( @SerialName("fingerprint_gathered") val fingerprintGathered: JsonObject?, @SerialName("user_attributes") val userAttributes: DeviceFingerprintDto )</ID>
-    <ID>TrailingCommaOnDeclarationSite:AttributionStrategy.kt$AttributionStrategy$( context: Context, wba: WBAnalytics2, scopeFactory: CoroutineScopeFactory )</ID>
-    <ID>TrailingCommaOnDeclarationSite:AttributionStrategy.kt$AttributionStrategy.HandleLinkOnAttribution$( val systemLogsTag: String? = "WBAttributionTracker", val withSystemLogs: Boolean = Log.isLoggable(systemLogsTag, Log.DEBUG), val handleLink: suspend (link: String) -&gt; Unit )</ID>
+    <ID>TrailingCommaOnDeclarationSite:AttributionStrategy.kt$AttributionStrategy$( context: Context, analytics: WildAnalytics, scopeFactory: CoroutineScopeFactory )</ID>
+    <ID>TrailingCommaOnDeclarationSite:AttributionStrategy.kt$AttributionStrategy.HandleLinkOnAttribution$( val systemLogsTag: String? = "WildAttributionTracker", val withSystemLogs: Boolean = Log.isLoggable(systemLogsTag, Log.DEBUG), val handleLink: suspend (link: String) -&gt; Unit )</ID>
     <ID>TrailingCommaOnDeclarationSite:BatchRepositoryImpl.kt$BatchRepositoryImpl$( count: Int, maxSizeEvent: Pair&lt;String, Long&gt;, maxBatchSizeInBites: Int )</ID>
-    <ID>TrailingCommaOnDeclarationSite:BatchRepositoryImpl.kt$BatchRepositoryImpl$( private val metadataCollector: MetadataCollector, private val sentInfoDao: SentInfoDao, private val eventsRepository: EventsRepository, private val transactionRunner: TransactionRunner, private val log: WBAnalytics2Logger )</ID>
+    <ID>TrailingCommaOnDeclarationSite:BatchRepositoryImpl.kt$BatchRepositoryImpl$( private val metadataCollector: MetadataCollector, private val sentInfoDao: SentInfoDao, private val eventsRepository: EventsRepository, private val transactionRunner: TransactionRunner, private val log: WildAnalyticsLogger )</ID>
     <ID>TrailingCommaOnDeclarationSite:BatchRepositoryImpl.kt$BatchRepositoryImpl$( sentInfo: SentInfoEntity, apiData: ApiData, config: BatchingConfig )</ID>
     <ID>TrailingCommaOnDeclarationSite:BatchRepositoryImplTests.kt$( eventEntities: List&lt;EventEntity&gt;, sentInfoDao: SentInfoDao = createSentDao() )</ID>
     <ID>TrailingCommaOnDeclarationSite:EventsFactory.kt$EventsFactory$( apiUrl: ApiUrl, apiKey: ApiKey, id: Int = lastId.incrementAndGet() )</ID>
@@ -92,18 +92,18 @@
     <ID>TrailingCommaOnDeclarationSite:HttpTransport.kt$HttpTransport$( url: String, body: T, strategy: SerializationStrategy&lt;T&gt;, headers: Map&lt;String, String&gt; )</ID>
     <ID>TrailingCommaOnDeclarationSite:InMemoryEventsRepository.kt$InMemoryEventsRepository$( apiData: ApiData, limit: Int )</ID>
     <ID>TrailingCommaOnDeclarationSite:JsonBody.kt$JsonBody$( private val value: T, private val serializer: SerializationStrategy&lt;T&gt; )</ID>
-    <ID>TrailingCommaOnDeclarationSite:NoOpWBAnalytics2Logger.kt$NoOpWBAnalytics2Logger$( e: Error, details: Map&lt;String, String&gt; )</ID>
-    <ID>TrailingCommaOnDeclarationSite:SendAllAnalyticEventsOperation.kt$SendAllAnalyticEventsOperation$( batchData: BatchData, config: WBA2Config )</ID>
+    <ID>TrailingCommaOnDeclarationSite:NoOpWildAnalyticsLogger.kt$NoOpWildAnalyticsLogger$( e: Error, details: Map&lt;String, String&gt; )</ID>
+    <ID>TrailingCommaOnDeclarationSite:SendAllAnalyticEventsOperation.kt$SendAllAnalyticEventsOperation$( batchData: BatchData, config: WildAnalyticsConfig )</ID>
     <ID>TrailingCommaOnDeclarationSite:SendAllAnalyticEventsOperationTests.kt$SendAllAnalyticEventsOperationTests.&lt;no name provided&gt;$( attempt: Int, error: Throwable )</ID>
-    <ID>TrailingCommaOnDeclarationSite:SendOperationScheduler.kt$SendOperationScheduler$( private val context: Context, private val log: WBAnalytics2Logger )</ID>
+    <ID>TrailingCommaOnDeclarationSite:SendOperationScheduler.kt$SendOperationScheduler$( private val context: Context, private val log: WildAnalyticsLogger )</ID>
     <ID>TrailingCommaOnDeclarationSite:TestLogger.kt$TestLogger$( e: Error, details: Map&lt;String, String&gt; )</ID>
     <ID>TrailingCommaOnDeclarationSite:Util.kt$( context: Context, apiUrlProvider: () -&gt; ApiUrl = { DEFAULT_PROD_URL }, apiKey: ApiKey, isCollectionEnabled: Boolean = true, isAttributionTrackingEnabled: Boolean = false, handleAttributionLink: suspend (link: String) -&gt; Unit = {} )</ID>
-    <ID>TrailingCommaOnDeclarationSite:WBAttributionTracker.kt$WBAttributionTracker$( analytics: WBAnalytics2, onResult: suspend (AttributionData?) -&gt; Unit )</ID>
-    <ID>TrailingCommaOnDeclarationSite:WBAttributionTrackerImpl.kt$WBAttributionTrackerImpl$( analytics: WBAnalytics2, onResult: suspend (AttributionData?) -&gt; Unit )</ID>
-    <ID>TrailingCommaOnDeclarationSite:WBAttributionTrackerTests.kt$( subject: WBAttributionTrackerImpl, wba: WBAnalytics2, dataSource: TestAttributionDataSource )</ID>
-    <ID>TrailingCommaOnDeclarationSite:WBDeviceInfoProviderImpl.kt$WBDeviceInfoProviderImpl$( context: Context )</ID>
+    <ID>TrailingCommaOnDeclarationSite:WildAttributionTracker.kt$WildAttributionTracker$( analytics: WildAnalytics, onResult: suspend (AttributionData?) -&gt; Unit )</ID>
+    <ID>TrailingCommaOnDeclarationSite:WildAttributionTrackerImpl.kt$WildAttributionTrackerImpl$( analytics: WildAnalytics, onResult: suspend (AttributionData?) -&gt; Unit )</ID>
+    <ID>TrailingCommaOnDeclarationSite:WildAttributionTrackerTests.kt$( subject: WildAttributionTrackerImpl, analytics: WildAnalytics, dataSource: TestAttributionDataSource )</ID>
+    <ID>TrailingCommaOnDeclarationSite:WildDeviceInfoProviderImpl.kt$WildDeviceInfoProviderImpl$( context: Context )</ID>
     <ID>UnnecessaryParenthesesBeforeTrailingLambda:SendStrategyProviderTests.kt$SendStrategyProviderTests$()</ID>
-    <ID>UseCheckOrError:WBAnalytics2Logger.kt$ErrorLogBuilder$throw IllegalStateException("Error must be set")</ID>
+    <ID>UseCheckOrError:WildAnalyticsLogger.kt$ErrorLogBuilder$throw IllegalStateException("Error must be set")</ID>
     <ID>Wrapping:PriorityLoggingTest.kt$PriorityLoggingTest$(</ID>
     <ID>Wrapping:SendAllAnalyticEventsOperation.kt$SendAllAnalyticEventsOperation$"Processing batch for API URL: ${apiData.apiUrl} events count ${batch.eventIds.size}, content length ${batch.contentLength}"</ID>
     <ID>Wrapping:SendStrategyProvider.kt$SendStrategyProvider$-&gt;</ID>
