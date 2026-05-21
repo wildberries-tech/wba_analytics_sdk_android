@@ -13,7 +13,7 @@ public class FeatureInitializer : Initializer<Unit> {
 
     override fun create(context: Context) {
         val sl = WildAnalyticsServiceLocator.getInstance(context)
-        ProcessLifecycleOwner.Companion.get().lifecycle.coroutineScope.launch(Dispatchers.Default) {
+        ProcessLifecycleOwner.get().lifecycle.coroutineScope.launch(Dispatchers.Default) {
             // Инициализируем весь DI граф на отдельном потоке, чтобы не нагружать мейн тред.
             sl.get<WildAnalyticsSenderService>() // Запускает сервис.
         }

@@ -87,7 +87,10 @@ public interface WildSplitter {
             context: Context,
             config: WildSplitterConfig,
             withSystemLogs: Boolean,
-            getOnConfigChangedFlags: (old: WildSplitterConfig, new: WildSplitterConfig) -> OnConfigChangedFlags = ::defaultOnConfigChangedFlags,
+            getOnConfigChangedFlags: (
+                old: WildSplitterConfig,
+                new: WildSplitterConfig,
+            ) -> OnConfigChangedFlags = ::defaultOnConfigChangedFlags,
             systemLogsTag: String? = "WildSplitter",
         ): WildSplitter {
             val log =

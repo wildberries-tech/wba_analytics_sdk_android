@@ -66,13 +66,14 @@ public fun WildAnalytics(
  * @param isAttributionTrackingEnabled стратегия проверки атрибуции.
  * По умолчанию не проверяем.
  * */
+@Suppress("FunctionNaming")
 public fun WildAnalytics(
     context: Context,
     apiUrlProvider: () -> ApiUrl = { DEFAULT_PROD_URL },
     apiKey: ApiKey,
     isCollectionEnabled: Boolean = true,
     isAttributionTrackingEnabled: Boolean = false,
-    handleAttributionLink: suspend (link: String) -> Unit = {}
+    handleAttributionLink: suspend (link: String) -> Unit = {},
 ) {
     WildAnalytics(
         context = context,
@@ -92,8 +93,7 @@ internal fun <T> Flow<T>.rateLimit(delay: Duration): Flow<T> = channelFlow {
     var job: Job? = null
 
     fun emitAfterDelay() {
-        if (job != null)
-            return
+        if (job != null) return
 
         job = launch {
             delay(delay)
@@ -123,7 +123,8 @@ internal val osBuild: String by lazy {
     Build.VERSION.RELEASE?.parseOsBuild()
         ?: getOsBuildFromVersionCode()
         ?: Build.VERSION.CODENAME?.parseOsBuild()
-        ?: "" }
+        ?: ""
+}
 
 // Ожидаемый бэком формат версии ОС -- "00.00.00". Меньше составляющих распарсится (в недостающие запишется ноль), больше -- ошибка.
 // https://youtrack.wildberries.ru/issue/ANDR-31076/WildAnalytics-SDK-Android-versiya-OS-v-batche

@@ -1,7 +1,6 @@
 package ru.wildanalytics.pub.analytics.db
 
 import android.database.Cursor
-import androidx.room.AutoMigration
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -96,7 +95,7 @@ internal interface AnalyticsEventsDao {
     suspend fun getFirstApiData(): ApiData?
 
     @Insert
-    fun add(items: List<EventEntity>)
+    suspend fun add(items: List<EventEntity>)
 
     @Query("DELETE FROM EventEntity WHERE id IN (SELECT id FROM EventEntity LIMIT :count)")
     suspend fun deleteEvents(count: Int): Int

@@ -2,9 +2,7 @@ package ru.wildanalytics.pub.analytics.send
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
@@ -30,7 +28,6 @@ internal class WildAnalyticsSenderService(
             .onEach { log.logDebug("WildAnalytics config: $it") }
             .flatMapLatest { config ->
                 delay(config.delays.initialDelay)
-                return@flatMapLatest flowOf(Unit)
                 sendStrategyProvider.strategy
                     .mapLatest { strategy -> strategy.invoke(config) }
             }

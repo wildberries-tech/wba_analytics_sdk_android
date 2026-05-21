@@ -1,19 +1,15 @@
 package ru.wildanalytics.pub.analytics
 
 import android.content.Context
-import androidx.room.Room
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.wildanalytics.pub.analytics.WildAnalyticsServiceLocator.Builder
 import ru.wildanalytics.pub.analytics.batch.BatchRepository
 import ru.wildanalytics.pub.analytics.batch.BatchRepositoryImpl
 import ru.wildanalytics.pub.analytics.config.ConfigRepository
 import ru.wildanalytics.pub.analytics.config.ConfigRepositoryImpl
-import ru.wildanalytics.pub.analytics.db.Migrations
 import ru.wildanalytics.pub.analytics.db.RoomTransactionRunner
 import ru.wildanalytics.pub.analytics.db.TransactionRunner
 import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabase
-import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabase_Impl
+import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabaseFactory
 import ru.wildanalytics.pub.analytics.device.GoogleAdIdProvider
 import ru.wildanalytics.pub.analytics.device.MetadataCollector
 import ru.wildanalytics.pub.analytics.device.WildDeviceInfoProvider
@@ -28,7 +24,7 @@ import ru.wildanalytics.pub.analytics.send.WildAnalyticsSenderService
 import java.time.Clock
 import kotlin.concurrent.Volatile
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LongMethod")
 private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Builder().build {
     bindInstance(context.applicationContext)
     bindInstance(Clock.systemDefaultZone())
@@ -48,15 +44,11 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
         )
     }
     bind<WildAnalyticsDatabase> {
-        Room.databaseBuilder(
+        WildAnalyticsDatabaseFactory.create(
             context = it.get(),
-            name = "ru.wildanalytics.pub.analytics.db",
-            factory = { WildAnalyticsDatabase_Impl() }
+            coroutineScopeFactory = it.get(),
+            logger = it.get()
         )
-            .setQueryCoroutineContext(Dispatchers.IO.limitedParallelism(4))
-            .fallbackToDestructiveMigration(true)
-            .addMigrations(*Migrations().all)
-            .build()
     }
     bind {
         MetadataCollector(
