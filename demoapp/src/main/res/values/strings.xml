@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WBA2 Demo</string>
+    <string name="app_name">WildAnalytics Demo</string>
     <string name="tab_analytics">Analytics</string>
     <string name="tab_splitter">Splitter</string>
 

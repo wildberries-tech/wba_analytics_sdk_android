@@ -47,7 +47,7 @@ dependencies {
 val schemaDir = File(projectDir, "schemas")
 
 android {
-    namespace = "ru.wildberries.WBAnalytics2"
+    namespace = "ru.wildanalytics.pub.WildAnalytics"
     compileSdk = 35
 
     defaultConfig {
@@ -97,9 +97,9 @@ ksp {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "ru.wildberries"
-            artifactId = "analytics2.public"
-            version = System.getenv("wb.analytics.version") ?: "1.0.35"
+            groupId = "ru.wildanalytics"
+            artifactId = "pub"
+            version = System.getenv("wild.analytics.version") ?: "1.0.36"
 
             afterEvaluate {
                 from(components["release"])

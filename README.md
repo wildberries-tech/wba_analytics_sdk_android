@@ -1,5 +1,5 @@
-# WB Analytics 2 Android Client
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README-en.md)
+# Wild Analytics Android Client
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wild_analytics_sdk_android/blob/develop/README-en.md)
 
 Клиентская андроид библиотека для Wildberries аналитики.
 
@@ -11,18 +11,18 @@
 
 ### Получение экземпляра
 
-Обычно экземпляр `WBAnalytics2` предоставляется через DI (например, Hilt/Dagger):
+Обычно экземпляр `WildAnalytics` предоставляется через DI (например, Hilt/Dagger):
 
 ```kotlin
 @Inject
-lateinit var wba: WBAnalytics2
+lateinit var analytics: WildAnalytics
 ```
 
 Или можно создать вручную:
 
 ```kotlin
-val analytics = WBAnalytics2(
-    apiUrlProvider = { "https://wba.wb.ru/m/batch" }, // URL для отправки событий
+val analytics = WildAnalytics(
+    apiUrlProvider = { "https://analytics.wb.ru/m/batch" }, // URL для отправки событий
     apiKey = "ВАШ_API_KEY",                         // Ваш API-ключ
     isCollectionEnabled = true                       // Включить/отключить сбор событий
 )
@@ -32,7 +32,7 @@ val analytics = WBAnalytics2(
 динамически, например:
 
 ```kotlin
-return WBAnalytics2(
+return WildAnalytics(
     apiUrlProvider = { infraLocalizationUrlOverride.overrideIfNeeded(DEFAULT_PROD_URL) },
     apiKey = "ВАШ_API_KEY",
     isCollectionEnabled = true,
@@ -42,18 +42,18 @@ return WBAnalytics2(
 **Пояснения к параметрам конструктора:**
 
 - `apiUrlProvider` — функция, возвращающая URL для отправки аналитики (обычно
-  `"https://wba.wb.ru/m/batch"`).
+  `"https://analytics.wb.ru/m/batch"`).
 - `apiKey` — API-ключ для авторизации в сервисе аналитики.
 - `isCollectionEnabled` — флаг, отвечающий за то, включена ли обработка событий по умолчанию (можно
   менять в рантайме).
 
-## Конфигурация аналитики (WBA2Config)
+## Конфигурация аналитики (WildAnalyticsConfig)
 
-В текущей версии используется стандартная конфигурация `WBA2Config.Default`, параметры которой
+В текущей версии используется стандартная конфигурация `WildAnalyticsConfig.Default`, параметры которой
 подобраны для оптимальной работы библиотеки. В будущем планируется добавить возможность
 конфигурирования этих параметров извне.
 
-### Значения по умолчанию (WBA2Config.Default):
+### Значения по умолчанию (WildAnalyticsConfig.Default):
 
 - **delays: SendingDelays**
     - `delayBetweenBatches = 2 секунды` — задержка между отправкой отдельных батчей (пакетов)
@@ -86,7 +86,7 @@ return WBAnalytics2(
 #### Простое событие
 
 ```kotlin
-wba.logEvent("screen_open", mapOf("screen" to "Main"))
+analytics.logEvent("screen_open", mapOf("screen" to "Main"))
 ```
 
 #### Сложное событие (например, покупка)
@@ -94,11 +94,11 @@ wba.logEvent("screen_open", mapOf("screen" to "Main"))
 > **Примечание:**
 > Для сериализации сложных параметров и построения JSON-структур
 > используется [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization). Эта
-> библиотека уже входит в зависимости WBAnalytics2, но если вы строите свои структуры, убедитесь, что
+> библиотека уже входит в зависимости WildAnalytics, но если вы строите свои структуры, убедитесь, что
 > она также доступна в вашем проекте.
 
 ```kotlin
-wba.logEvent(
+analytics.logEvent(
     name = "purchase",
     parameters = buildJsonObject(
         buildJsonObject {
@@ -123,20 +123,20 @@ wba.logEvent(
 #### Установка общих параметров
 
 ```kotlin
-wba.setCommonParameter("client_id", "123")
-wba.setCommonParameters(mapOf("user_id" to "456", "app_version" to "1.2.3"))
+analytics.setCommonParameter("client_id", "123")
+analytics.setCommonParameters(mapOf("user_id" to "456", "app_version" to "1.2.3"))
 ```
 
 #### Отключение/включение сбора событий
 
 ```kotlin
-wba.isCollectionEnabled = false // или true
+analytics.isCollectionEnabled = false // или true
 ```
 
 #### Завершение работы аналитики навсегда
 
 ```kotlin
-wba.finish()
+analytics.finish()
 ```
 
 ### Описание параметров
@@ -149,11 +149,11 @@ wba.finish()
 ### Примеры событий из реального кода
 
 - Открытие экрана:  
-  `wba.logEvent("Lottery_V", mapOf("name" to "Лотерея", "circulation" to "123"))`
+  `analytics.logEvent("Lottery_V", mapOf("name" to "Лотерея", "circulation" to "123"))`
 - Покупка:  
   (см. пример выше)
 - Клик по баннеру:  
-  `wba.logEvent("Banner_T", mapOf("banner_id" to "789", "location" to "main"))`
+  `analytics.logEvent("Banner_T", mapOf("banner_id" to "789", "location" to "main"))`
 
 ## Статический анализ (detekt)
 
@@ -194,7 +194,7 @@ library/build/reports/detekt/detekt.html
 ## FAQ
 
 - **Можно ли вызывать методы c разных потоков?**  
-  Да, все публичные методы WBAnalytics2 реализованы потокобезопасно.
+  Да, все публичные методы WildAnalytics реализованы потокобезопасно.
 - **Как указать apiKey?**  
   Через параметр конструктора или DI.
 - **Как добавить пользовательский токен?**  
@@ -202,25 +202,25 @@ library/build/reports/detekt/detekt.html
 - **Что если нет сети?**  
   События сохраняются и будут отправлены при появлении сети.
 - **Как завершить сбор событий?**  
-  Вызовите `finish()`. После этого возобновить процесс невозможно.
+  Вызовите `finish()`. После этого возоновить процесс невозможно.
 
-# WB Attribution Tracker
+# Wild Attribution Tracker
 
 Входит в состав библиотеки, начиная с 1.0.12
 
 ## Подключение библиотеки
 
-Аналогично [подключению wb analytics client](#подключение-библиотеки)
+Аналогично [подключению wild analytics client](#подключение-библиотеки)
 
 ## Использование библиотеки
 
 ### Создание экземпляра
 
 ```kotlin
-WBAttributionTracker.Factory.create(
+WildAttributionTracker.Factory.create(
     context = context, // контекст приложения
     withSystemLogs = BuildConfig.DEBUG, // отправлять ли системные логи
-    systemLogsTag = "WBAttribution", // тэг, по которому отправляются логи
+    systemLogsTag = "WildAttribution", // тэг, по которому отправляются логи
 )
 ```
 
@@ -228,7 +228,7 @@ WBAttributionTracker.Factory.create(
 
 ```kotlin
 attributionTracker.checkAttribution(
-    analytics = wba2, // экземпляр аналитики для логирования события "app_install"
+    analytics = analytics, // экземпляр аналитики для логирования события "app_install"
     onResult = { data: AttributionData? -> // вызывается один раз с данными атрибуции или без них, если не было перехода в приложение с рекламной ссылки определённого типа
         val link = data?.link
         if (link != null) {

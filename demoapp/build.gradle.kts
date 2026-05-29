@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "ru.wildberries.analytics.sdk.demo"
+    namespace = "ru.wildanalytics.pub.analytics.sdk.demo"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ru.wildberries.analytics.sdk.demo"
+        applicationId = "ru.wildanalytics.pub.analytics.sdk.demo"
         minSdk = 23
         targetSdk = 35
         versionCode = 1

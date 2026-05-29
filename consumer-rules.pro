@@ -7,10 +7,10 @@
 -keepclasseswithmembers class kotlinx.serialization.json.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
--keep,includedescriptorclasses class ru.wildberries.**$$serializer { *; }
--keepclassmembers class ru.wildberries.** {
+-keep,includedescriptorclasses class ru.wildanalytics.pub.**$$serializer { *; }
+-keepclassmembers class ru.wildanalytics.pub.** {
     *** Companion;
 }
--keepclasseswithmembers class ru.wildberries.** {
+-keepclasseswithmembers class ru.wildanalytics.pub.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
