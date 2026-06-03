@@ -7,6 +7,9 @@ Android client library for Wildberries analytics.
 
 For now, download the aar [from here](library/releases/ru/wildberries/analytics2.public).
 
+> [!IMPORTANT]
+> If you are migrating from the old `WBAnalytics2` version, please refer to the [Migration Guide](./Migration_from_WBAnalytics2_to_WildAnalytics-en.md).
+
 ## Using the Library
 
 ### Getting an Instance

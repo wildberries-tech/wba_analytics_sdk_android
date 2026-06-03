@@ -5,7 +5,10 @@
 
 ## Подключение библиотеки
 
-Пока [отсюда](library/releases/ru/wildberries/analytics2.public) доставать aar
+Пока [отсюда](library/releases/ru/wildberries/analytics2.public) доставать aar.
+
+> [!IMPORTANT]
+> Если вы переходите со старой версии `WBAnalytics2`, обязательно ознакомьтесь с [Руководством по миграции](./Migration_from_WBAnalytics2_to_WildAnalytics.md).
 
 ## Использование библиотеки
 
