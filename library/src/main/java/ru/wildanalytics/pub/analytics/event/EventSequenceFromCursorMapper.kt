@@ -17,6 +17,7 @@ private class EventsSequence(private val cursor: Cursor) : CloseableSequence<Eve
         val apiUrl = cursor.getColumnIndexOrThrow("apiUrl")
         val apiKey = cursor.getColumnIndexOrThrow("apiKey")
         val name = cursor.getColumnIndexOrThrow("name")
+        val sessionValue = cursor.getColumnIndexOrThrow("sessionValue")
         val time = cursor.getColumnIndexOrThrow("time")
         val extras = cursor.getColumnIndexOrThrow("extras")
         val importance = cursor.getColumnIndexOrThrow("importance")
@@ -31,6 +32,7 @@ private class EventsSequence(private val cursor: Cursor) : CloseableSequence<Eve
                         apiUrl = cursor.getString(apiUrl),
                         apiKey = cursor.getString(apiKey),
                         name = cursor.getString(name),
+                        sessionValue = cursor.getLong(sessionValue).toULong(),
                         time = timeConverter.toDate(cursor.getString(time)),
                         extras = extrasConverter.fromString(cursor.getString(extras)),
                         importance = cursor.getInt(importance),

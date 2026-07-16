@@ -113,4 +113,14 @@ internal class MetaInfo(
      * GAID (Google Advertising ID) устройства.
      */
     val deviceAdId: String,
+
+    /**
+     * Тип рекламного идентификатора устройства: gaid / oaid.
+     */
+    val deviceAdIdType: String,
+
+    /**
+     * Текущий часовой пояс устройства, например `Europe/Moscow`.
+     */
+    val timezone: String,
 )

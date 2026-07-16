@@ -13,6 +13,7 @@ private val zoneFormatter = DateTimeFormatter.ofPattern("Z")
 internal fun EventEntity.toServerModel(eventNumber: Long): Event {
     return Event(
         name = name,
+        sessionValue = sessionValue,
         time = time,
         eventNumber = eventNumber.toULong(),
         data = extras,
@@ -42,4 +43,6 @@ internal fun MetaInfo.toServerModel(batchNumber: Long): Meta = Meta(
     resolutionWidth = resolutionWidth,
     resolutionHeight = resolutionHeight,
     deviceAdId = deviceAdId,
+    deviceAdIdType = deviceAdIdType,
+    timezone = timezone,
 )

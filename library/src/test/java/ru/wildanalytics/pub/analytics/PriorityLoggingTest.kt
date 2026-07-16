@@ -8,6 +8,8 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import ru.wildanalytics.pub.analytics.db.EventEntity
 import ru.wildanalytics.pub.analytics.event.EventsRepository
+import ru.wildanalytics.pub.analytics.session.SessionProvider
+import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepository
 import java.time.Clock
 import java.time.ZonedDateTime
 
@@ -32,8 +34,11 @@ internal class PriorityLoggingTest : BehaviorSpec({
             isCollectionEnabled = true,
             clock = clock,
             eventsRepository = repository,
+            sessionProvider = mockk<SessionProvider>(relaxed = true),
             log = mockk(relaxed = true),
-            coroutineScopeFactory = coroutineScopeFactory
+            coroutineScopeFactory = coroutineScopeFactory,
+            customHeadersRepository = mockk<CustomHeadersRepository>(relaxed = true),
+            enricherRegistry = EventEnricherRegistryImpl(mockk(relaxed = true)),
         )
 
         When("logEvent is called") {

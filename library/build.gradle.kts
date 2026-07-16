@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.detekt)
@@ -20,9 +19,9 @@ dependencies {
 
     // PUBLIC API
     api(libs.kotlinx.serialization.json)
+    api(libs.okhttp)
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.okhttp)
     implementation(libs.kotlin.coroutines.okhttp)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.collections)
@@ -55,16 +54,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["moduleName"] = name
-        consumerProguardFiles("consumer-rules.pro")
+        consumerProguardFiles("$rootDir/consumer-rules.pro")
     }
 
     buildFeatures {
         buildConfig = true
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-        freeCompilerArgs = freeCompilerArgs + "-Xexplicit-api=strict"
     }
 
     compileOptions {
@@ -72,8 +66,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
-    sourceSets["androidTest"].assets.srcDir(schemaDir)
 
     testOptions {
         unitTests.all {
@@ -89,6 +81,21 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        freeCompilerArgs.add("-Xexplicit-api=strict")
+    }
+}
+
+// В AGP 9 индексный доступ android.sourceSets["androidTest"] больше не работает,
+// поэтому каталог Room-схем регистрируется как assets через Sources API на androidComponents.
+androidComponents {
+    onVariants { variant ->
+        variant.androidTest?.sources?.assets?.addStaticSourceDirectory(schemaDir.absolutePath)
+    }
+}
+
 ksp {
     arg("room.schemaLocation", schemaDir.toString())
     arg("room.incremental", "true")
@@ -99,7 +106,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "ru.wildanalytics"
             artifactId = "pub"
-            version = System.getenv("wild.analytics.version") ?: "1.0.36"
+            version = providers.gradleProperty("wild.analytics.version").orElse("1.0.48").get()
 
             afterEvaluate {
                 from(components["release"])

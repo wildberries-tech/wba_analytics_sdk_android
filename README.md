@@ -1,5 +1,6 @@
 # Wild Analytics Android Client
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wild_analytics_sdk_android/blob/develop/README-en.md)
+[![version](https://img.shields.io/badge/version-1.0.48-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.48)
 
 Клиентская андроид библиотека для Wildberries аналитики.
 
@@ -129,6 +130,44 @@ analytics.logEvent(
 analytics.setCommonParameter("client_id", "123")
 analytics.setCommonParameters(mapOf("user_id" to "456", "app_version" to "1.2.3"))
 ```
+
+#### Кастомные HTTP-заголовки (например, антибот-токен)
+
+```kotlin
+import okhttp3.Headers
+
+analytics.setCustomHeader("X-Wbaas-Token", token)
+// или несколько сразу:
+analytics.setCustomHeaders(
+    Headers.Builder()
+        .add("X-Wbaas-Token", token)
+        .build()
+)
+```
+
+Для удаления заголовка передайте `null`:
+
+```kotlin
+analytics.setCustomHeader("X-Wbaas-Token", null)
+```
+
+#### Обогащение событий (EventEnricher)
+
+Если какое-то событие нужно дополнить общими полями динамически (например,Experiment-флаги), зарегистрируйте enricher:
+
+```kotlin
+import kotlinx.serialization.json.JsonPrimitive
+import ru.wildanalytics.pub.analytics.AnalyticsField
+import ru.wildanalytics.pub.analytics.EventEnricher
+
+analytics.addEventEnricher { eventName, _ ->
+    listOf(
+        AnalyticsField("ab_test_flag", JsonPrimitive("value")),
+    )
+}
+```
+
+Enricher не может перезаписать существующие параметры события — только добавить отсутствующие.
 
 #### Отключение/включение сбора событий
 
