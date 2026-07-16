@@ -120,6 +120,44 @@ analytics.setCommonParameter("client_id", "123")
 analytics.setCommonParameters(mapOf("user_id" to "456", "app_version" to "1.2.3"))
 ```
 
+#### Custom HTTP Headers (e.g., Anti-bot Token)
+
+```kotlin
+import okhttp3.Headers
+
+analytics.setCustomHeader("X-Wbaas-Token", token)
+// or several at once:
+analytics.setCustomHeaders(
+    Headers.Builder()
+        .add("X-Wbaas-Token", token)
+        .build()
+)
+```
+
+To remove a header, pass `null`:
+
+```kotlin
+analytics.setCustomHeader("X-Wbaas-Token", null)
+```
+
+#### Event Enrichment (EventEnricher)
+
+If you need to dynamically add common fields to every event (e.g., experiment flags), register an enricher:
+
+```kotlin
+import kotlinx.serialization.json.JsonPrimitive
+import ru.wildanalytics.pub.analytics.AnalyticsField
+import ru.wildanalytics.pub.analytics.EventEnricher
+
+analytics.addEventEnricher { eventName, _ ->
+    listOf(
+        AnalyticsField("ab_test_flag", JsonPrimitive("value")),
+    )
+}
+```
+
+An enricher cannot overwrite existing event parameters — it can only add missing ones.
+
 #### Enable/Disable Event Collection
 
 ```kotlin

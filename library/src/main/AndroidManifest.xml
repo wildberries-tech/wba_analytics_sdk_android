@@ -15,5 +15,10 @@
                 android:name="ru.wildanalytics.pub.analytics.FeatureInitializer"
                 android:value="androidx.startup" />
         </provider>
+        <service
+            android:name="ru.wildanalytics.pub.analytics.send.SendAllEventsOperationJobService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 </manifest>

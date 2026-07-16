@@ -64,11 +64,47 @@ The library includes a built-in `OldDatabaseMigrationHelper` mechanism that ensu
 ## 6. What has NOT changed
 
 Despite the name changes, the following components remain compatible:
-*   **Event Contracts:** The JSON format and event parameter names have not changed.
-*   **Database Schema:** The table structure is identical to version 7 of the old library.
 *   **Method APIs:** Signatures of `logEvent`, `setCommonParameters`, and other methods remain the same.
+*   **Database Schema:** The table structure is identical to version 7 of the old library.
 
-## 7. Post-migration Checklist
+## 7. Migrating from WildAnalytics 1.0.36 to 1.0.37+
+
+> [!IMPORTANT]
+> If you are already using `WildAnalytics` 1.0.36 or earlier, please note the following changes introduced in 1.0.37+.
+
+### 7.1. OkHttp is Now Part of the Public API
+
+The library now exports `okhttp3` as an `api` dependency because custom HTTP headers are passed via `okhttp3.Headers`.
+
+*   You do not need to add `okhttp` manually unless you use it directly.
+*   If you already have your own `okhttp` dependency, make sure it is compatible with the version used by WildAnalytics.
+
+### 7.2. New Public API Methods
+
+The `WildAnalytics` interface now includes:
+
+*   `setCustomHeader(key: String, value: String?)` — set an HTTP header for all analytics requests (e.g., anti-bot token `X-Wbaas-Token`).
+*   `setCustomHeaders(headers: okhttp3.Headers)` — set multiple headers at once.
+*   `addEventEnricher(enricher: EventEnricher)` — register a handler that can add fields to every event.
+
+Methods `logEvent`, `logImportantEvent`, `setCommonParameter(s)`, and `finish` retain their previous signatures.
+
+### 7.3. Changes to the Event JSON Contract
+
+The sent events and metadata now include new fields. They are populated automatically and do not require integration code changes, but may be relevant for backend processing:
+
+*   In events — `session_value`.
+*   In metadata — `timezone` and `device_ad_id_type` (`gaid` or `oaid`).
+
+### 7.4. Database
+
+The library database has been updated to version **7**. Room performs automatic migration for existing installations without any action required from the app.
+
+### 7.5. OAID Support
+
+In addition to GAID, the library can now use the Huawei advertising identifier (OAID). If GAID is unavailable on the device, it will attempt to use OAID. The identifier type used is sent in the `device_ad_id_type` field.
+
+## 8. Post-migration Checklist
 
 - [ ] Dependency updated in `build.gradle`.
 - [ ] Bulk replace of imports from `ru.wildberries` to `ru.wildanalytics.pub` completed.
@@ -76,7 +112,7 @@ Despite the name changes, the following components remain compatible:
 - [ ] ProGuard/R8 rules updated (if custom paths were used).
 - [ ] Project cleaned and rebuilt (`./gradlew clean assemble`).
 
-## 8. Useful Tips for Android Studio
+## 9. Useful Tips for Android Studio
 
 For quick migration, use `Ctrl+Shift+R`:
 1. **Search:** `WBAnalytics2` -> **Replace with:** `WildAnalytics`

@@ -59,4 +59,6 @@ internal fun testMetaInfo() = MetaInfo(
     resolutionWidth = 560,
     resolutionHeight = 1000,
     deviceAdId = "deviceAdId",
+    deviceAdIdType = "gaid",
+    timezone = "Europe/Moscow",
 )

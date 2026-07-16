@@ -16,7 +16,7 @@ internal class SendOperationScheduler(
 
     fun schedule() {
         val scheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-        if (scheduler.getPendingJob(SEND_OPERATION_JOB_ID) != null) {
+        if (scheduler.allPendingJobs.any { it.id == SEND_OPERATION_JOB_ID }) {
             return
         }
         val jobInfo = JobInfo.Builder(

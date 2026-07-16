@@ -57,10 +57,10 @@ internal object OldDatabaseMigrationHelper {
                 try {
                     if (context.deleteDatabase(OLD_DB_NAME)) {
                         logger.logDebug("Old database deleted")
-                    } else{
+                    } else {
                         logger.logDebug("Old database not deleted")
                     }
-                } catch (e: Exception){
+                } catch (e: Exception) {
                     logger.logDebug("Failed to delete old database")
                     logger.logException(e)
                 }
@@ -106,6 +106,7 @@ internal object OldDatabaseMigrationHelper {
                             apiUrl = cursor.getString(0),
                             apiKey = cursor.getString(1),
                             name = cursor.getString(2),
+                            sessionValue = 0uL,
                             time = OffsetDateTime.parse(cursor.getString(3), formatter),
                             extras = json.decodeFromString<JsonObject>(cursor.getString(4)),
                             importance = cursor.getInt(5)
