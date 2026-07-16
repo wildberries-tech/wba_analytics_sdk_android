@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import okhttp3.Headers
 import ru.wildanalytics.pub.analytics.db.EventEntity
 import ru.wildanalytics.pub.analytics.event.EventsRepository
+import ru.wildanalytics.pub.analytics.session.SessionProvider
+import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepository
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.concurrent.atomic.AtomicReference
@@ -24,8 +27,11 @@ internal class WildAnalyticsImpl(
     override var isCollectionEnabled: Boolean,
     private val clock: Clock,
     private val eventsRepository: EventsRepository,
+    private val sessionProvider: SessionProvider,
     private val log: WildAnalyticsLogger,
     coroutineScopeFactory: CoroutineScopeFactory,
+    private val customHeadersRepository: CustomHeadersRepository,
+    private val enricherRegistry: EventEnricherRegistry,
 ) : WildAnalytics {
 
     private val myScope = coroutineScopeFactory.create(javaClass.simpleName)
@@ -36,7 +42,9 @@ internal class WildAnalyticsImpl(
         channel.consumeAsFlow()
             .onEach {
                 try {
-                    eventsRepository.add(it)
+                    // Обогащаем в consumer-корутине, чтобы не нагружать поток вызывающего.
+                    val enriched = enricherRegistry.enrich(it.name, it.extras)
+                    eventsRepository.add(it.copy(extras = enriched))
                 } catch (_: Exception) {
                     // Защита от недоступности БД.
                     // Без БД просто не будем собирать события аналитики.
@@ -50,6 +58,11 @@ internal class WildAnalyticsImpl(
         myScope.cancel()
         channel.cancel()
         commonParameters.set(persistentHashMapOf())
+        enricherRegistry.clear()
+    }
+
+    override fun addEventEnricher(enricher: EventEnricher) {
+        enricherRegistry.append(enricher)
     }
 
     override fun logEvent(name: String, parameters: Map<String, String>) {
@@ -81,6 +94,7 @@ internal class WildAnalyticsImpl(
         channel.trySend(
             EventEntity(
                 name = name,
+                sessionValue = sessionProvider.currentSessionValue,
                 apiUrl = apiUrlProvider(),
                 apiKey = apiKey,
                 time = OffsetDateTime.now(clock),
@@ -139,5 +153,17 @@ internal class WildAnalyticsImpl(
                 }
             }
         }
+    }
+
+    override fun setCustomHeader(key: String, value: String?) {
+        if (key.isBlank()) {
+            log.logWarn { "custom header key is blank, skipped" }
+            return
+        }
+        customHeadersRepository.set(key, value)
+    }
+
+    override fun setCustomHeaders(headers: Headers) {
+        customHeadersRepository.setAll(headers)
     }
 }

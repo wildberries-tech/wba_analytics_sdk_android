@@ -1,6 +1,7 @@
 package ru.wildanalytics.pub.analytics.db
 
 import android.database.Cursor
+import androidx.room.AutoMigration
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -24,8 +25,16 @@ import java.time.OffsetDateTime
         EventEntity::class,
         SentInfoEntity::class,
     ],
-    version = 1,
+    version = 7,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 7),
+    ],
     exportSchema = true
+)
+@TypeConverters(
+    OffsetDateTimeConverter::class,
+    KeyValueConverter::class,
+    ULongConverter::class,
 )
 internal abstract class WildAnalyticsDatabase : RoomDatabase() {
 
@@ -49,6 +58,8 @@ internal data class EventEntity(
     val apiUrl: ApiUrl,
     val apiKey: ApiKey,
     val name: String,
+    @ColumnInfo(defaultValue = "0")
+    val sessionValue: ULong,
     @field:TypeConverters(OffsetDateTimeConverter::class)
     val time: OffsetDateTime,
     @field:TypeConverters(KeyValueConverter::class)

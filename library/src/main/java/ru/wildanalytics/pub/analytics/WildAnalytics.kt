@@ -2,6 +2,7 @@ package ru.wildanalytics.pub.analytics
 
 import androidx.annotation.Size
 import kotlinx.serialization.json.JsonObject
+import okhttp3.Headers
 
 internal const val MAX_EVENT_NAME_LENGTH = 120L
 
@@ -86,4 +87,46 @@ public interface WildAnalytics {
      * [setCommonParameter] т.к. она это делает более оптимально.
      */
     public fun setCommonParameters(src: Map<String, String?>)
+
+    /**
+     * Устанавливает HTTP-заголовок, добавляемый к каждому запросу аналитики.
+     *
+     * Частный случай — антибот-токен: `setCustomHeader("X-Wbaas-Token", token)`.
+     *
+     * Функция thread-safe.
+     *
+     * @param value Если значение `null`, то [key] удаляется из набора кастомных заголовков.
+     */
+    public fun setCustomHeader(@Size(min = 1) key: String, value: String?)
+
+    /**
+     * Добавляет несколько кастомных HTTP-заголовков (merge/upsert).
+     *
+     * Для каждого имени из [headers] его значения заменяют текущие значения этого
+     * имени; имена, которых нет в [headers], остаются без изменений. Одно имя может
+     * содержать несколько значений (HTTP-заголовки — мультимапа).
+     *
+     * Удаление заголовка делается через [setCustomHeader] с `value == null`
+     * (иммутабельный [Headers] не выражает удаление).
+     *
+     * Функция thread-safe.
+     *
+     * Эту функцию предпочтительнее использовать, чем множество вызовов [setCustomHeader].
+     */
+    public fun setCustomHeaders(headers: Headers)
+
+    /**
+     * Регистрирует [EventEnricher], который может добавить одно или несколько
+     * полей к каждому событию аналитики.
+     *
+     * Enricher вызывается асинхронно в момент обработки события (не на потоке
+     * вызывающего [logEvent]) и НЕ может перезатереть существующие параметры
+     * события или общие параметры — только добавить новые.
+     *
+     * При совпадении ключей побеждает первый: между enricher'ами — добавленный
+     * первым, внутри возвращённого списка — первое вхождение ключа.
+     *
+     * Функция thread-safe.
+     */
+    public fun addEventEnricher(enricher: EventEnricher)
 }
