@@ -106,7 +106,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "ru.wildanalytics"
             artifactId = "pub"
-            version = System.getenv("wild.analytics.version") ?: "1.0.36"
+            version = providers.gradleProperty("wild.analytics.version").orElse("1.0.48").get()
 
             afterEvaluate {
                 from(components["release"])

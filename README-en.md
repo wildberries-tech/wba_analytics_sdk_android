@@ -1,5 +1,6 @@
 # Wild Analytics Android Client
 [![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wild_analytics_sdk_android/blob/develop/README.md)
+[![version](https://img.shields.io/badge/version-1.0.48-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.48)
 
 Android client library for Wildberries analytics.
 
