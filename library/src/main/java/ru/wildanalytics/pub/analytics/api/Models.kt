@@ -15,6 +15,8 @@ internal data class BatchModel(
 @Serializable
 internal data class Event(
     val name: String,
+    @SerialName("session_value")
+    val sessionValue: ULong,
     @SerialName("event_time")
     @Serializable(with = TimeAsStringSerializer::class)
     val time: OffsetDateTime,
@@ -25,10 +27,11 @@ internal data class Event(
 
     constructor(
         name: String,
+        sessionValue: ULong,
         time: OffsetDateTime,
         eventNumber: ULong,
         data: Map<String, String>,
-    ) : this(name, time, eventNumber, data.toJsonObject())
+    ) : this(name, sessionValue, time, eventNumber, data.toJsonObject())
 
     init {
         require(name.isNotEmpty())
@@ -107,4 +110,10 @@ internal data class Meta(
 
     @SerialName("device_ad_id")
     val deviceAdId: String,
+
+    @SerialName("device_ad_id_type")
+    val deviceAdIdType: String,
+
+    @SerialName("timezone")
+    val timezone: String,
 )

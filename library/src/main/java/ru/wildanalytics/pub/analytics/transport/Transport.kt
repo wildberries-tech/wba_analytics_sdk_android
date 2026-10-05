@@ -1,6 +1,7 @@
 package ru.wildanalytics.pub.analytics.transport
 
 import kotlinx.serialization.SerializationStrategy
+import okhttp3.Headers
 
 /**
 * Транспорт отправки данных аналитики.
@@ -17,6 +18,6 @@ public interface Transport {
         url: String,
         body: T,
         strategy: SerializationStrategy<T>,
-        headers: Map<String, String>,
+        headers: Headers,
     ): Int
 }

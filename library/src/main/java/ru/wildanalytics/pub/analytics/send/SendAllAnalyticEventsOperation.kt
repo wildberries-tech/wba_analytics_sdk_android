@@ -15,6 +15,7 @@ import ru.wildanalytics.pub.analytics.event.EventsRepository
 import ru.wildanalytics.pub.analytics.logDebug
 import ru.wildanalytics.pub.analytics.logError
 import ru.wildanalytics.pub.analytics.logException
+import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepository
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -28,6 +29,7 @@ internal class SendAllAnalyticEventsOperation(
     private val batchRepository: BatchRepository,
     private val configRepository: ConfigRepository,
     private val log: WildAnalyticsLogger,
+    private val customHeadersRepository: CustomHeadersRepository,
 ) {
 
     private val sendBatchLock = Mutex()
@@ -111,7 +113,9 @@ internal class SendAllAnalyticEventsOperation(
                     url = apiData.apiUrl,
                     body = batch,
                     strategy = BatchModel.serializer(),
-                    headers = mapOf("X-Api-Key" to apiData.apiKey),
+                    headers = customHeadersRepository.current().newBuilder()
+                        .set("X-Api-Key", apiData.apiKey)
+                        .build(),
                 )
                 if (responseCode != 200) {
                     throw IOException("Server error $responseCode")

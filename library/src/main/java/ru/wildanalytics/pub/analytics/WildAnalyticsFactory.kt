@@ -51,8 +51,11 @@ public fun WildAnalytics(
         isCollectionEnabled = isCollectionEnabled,
         clock = wildAnalyticsLocator.get(),
         eventsRepository = wildAnalyticsLocator.get(),
-        coroutineScopeFactory = wildAnalyticsLocator.get(),
+        sessionProvider = wildAnalyticsLocator.get(),
         log = wildAnalyticsLocator.get(),
+        coroutineScopeFactory = wildAnalyticsLocator.get(),
+        customHeadersRepository = wildAnalyticsLocator.get(),
+        enricherRegistry = wildAnalyticsLocator.get(),
     )
     attributionStrategy.execute(
         context = wildAnalyticsLocator.get(),

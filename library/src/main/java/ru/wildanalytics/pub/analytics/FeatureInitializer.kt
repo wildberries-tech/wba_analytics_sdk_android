@@ -1,19 +1,20 @@
 package ru.wildanalytics.pub.analytics
 
 import android.content.Context
-import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.coroutineScope
 import androidx.startup.Initializer
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.wildanalytics.pub.analytics.send.WildAnalyticsSenderService
 
-@Suppress("unused")
+@Suppress("unused", "GlobalCoroutineUsage")
 public class FeatureInitializer : Initializer<Unit> {
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun create(context: Context) {
         val sl = WildAnalyticsServiceLocator.getInstance(context)
-        ProcessLifecycleOwner.get().lifecycle.coroutineScope.launch(Dispatchers.Default) {
+        GlobalScope.launch(Dispatchers.Default) {
             // Инициализируем весь DI граф на отдельном потоке, чтобы не нагружать мейн тред.
             sl.get<WildAnalyticsSenderService>() // Запускает сервис.
         }

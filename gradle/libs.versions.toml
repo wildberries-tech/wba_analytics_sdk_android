@@ -1,10 +1,10 @@
 [versions]
-agp = "8.10.0"
-kotlin = "2.0.21"
-ksp = "2.0.21-1.0.28"
+agp = "9.2.1"
+kotlin = "2.3.21"
+ksp = "2.3.9"
 kotlinx-serialization = "1.7.3" # https://github.com/Kotlin/kotlinx.serialization/releases
-kotlinx-coroutines = "1.8.1" # https://github.com/Kotlin/kotlinx.coroutines/releases
-room = "2.7.2"
+kotlinx-coroutines = "1.10.2" # https://github.com/Kotlin/kotlinx.coroutines/releases
+room = "2.8.4"
 detekt = "1.23.8"
 kotest = "5.8.0"
 lifecycle = "2.8.5"

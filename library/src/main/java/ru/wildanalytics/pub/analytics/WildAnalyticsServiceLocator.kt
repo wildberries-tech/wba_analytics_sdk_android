@@ -10,7 +10,8 @@ import ru.wildanalytics.pub.analytics.db.RoomTransactionRunner
 import ru.wildanalytics.pub.analytics.db.TransactionRunner
 import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabase
 import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabaseFactory
-import ru.wildanalytics.pub.analytics.device.GoogleAdIdProvider
+import ru.wildanalytics.pub.analytics.device.AdIdProvider
+import ru.wildanalytics.pub.analytics.device.IpcServiceConfig
 import ru.wildanalytics.pub.analytics.device.MetadataCollector
 import ru.wildanalytics.pub.analytics.device.WildDeviceInfoProvider
 import ru.wildanalytics.pub.analytics.device.WildDeviceInfoProviderImpl
@@ -21,26 +22,59 @@ import ru.wildanalytics.pub.analytics.send.SendAllAnalyticEventsOperation
 import ru.wildanalytics.pub.analytics.send.SendOperationScheduler
 import ru.wildanalytics.pub.analytics.send.SendStrategyProvider
 import ru.wildanalytics.pub.analytics.send.WildAnalyticsSenderService
+import ru.wildanalytics.pub.analytics.session.SessionProvider
+import ru.wildanalytics.pub.analytics.session.SessionProviderImpl
+import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepository
+import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepositoryImpl
+import ru.wildanalytics.pub.analytics.util.DynamicSystemClock
+import ru.wildanalytics.pub.analytics.util.IdGenerator
+import ru.wildanalytics.pub.analytics.util.ProcessForegroundDataProvider
+import ru.wildanalytics.pub.analytics.util.RandomIdGenerator
 import java.time.Clock
 import kotlin.concurrent.Volatile
 
 @Suppress("LongMethod")
 private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Builder().build {
     bindInstance(context.applicationContext)
-    bindInstance(Clock.systemDefaultZone())
+    bindInstance<Clock>(DynamicSystemClock())
     bindInstance<WildAnalyticsLogger>(WildAnalyticsLoggerImpl())
     bindInstance<CoroutineScopeFactory>(CoroutineScopeFactoryImpl())
 
+    bind<IdGenerator> { RandomIdGenerator() }
+    bind { ProcessForegroundDataProvider() }
+    bind<SessionProvider> {
+        SessionProviderImpl(
+            idGenerator = it.get(),
+            processForegroundDataProvider = it.get(),
+            scope = it.get<CoroutineScopeFactory>().create("SessionProvider")
+        )
+    }
+
     bind<WildDeviceInfoProvider> {
         WildDeviceInfoProviderImpl(
-            context = it.get()
+            context = it.get(),
+            idGenerator = it.get(),
         )
     }
     bind {
-        GoogleAdIdProvider(
+        AdIdProvider(
             context = it.get(),
             log = it.get(),
             scopeFactory = it.get(),
+            configs = listOf(
+                IpcServiceConfig(
+                    action = "com.google.android.gms.ads.identifier.service.START",
+                    packageName = "com.google.android.gms",
+                    descriptor = "com.google.android.gms.ads.identifier.internal.IAdvertisingIdService",
+                    providerType = "gaid",
+                ),
+                IpcServiceConfig(
+                    action = "com.uodis.opendevice.OPENIDS_SERVICE",
+                    packageName = "com.huawei.hwid",
+                    descriptor = "com.uodis.opendevice.aidl.OpenDeviceIdentifierService",
+                    providerType = "oaid",
+                )
+            )
         )
     }
     bind<WildAnalyticsDatabase> {
@@ -53,7 +87,7 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
     bind {
         MetadataCollector(
             deviceInfoProvider = it.get(),
-            googleAdIdProvider = it.get(),
+            adIdProvider = it.get(),
             context = it.get(),
             clock = it.get(),
         )
@@ -69,6 +103,12 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
     }
     bind<ConfigRepository> {
         ConfigRepositoryImpl()
+    }
+    bind<CustomHeadersRepository> {
+        CustomHeadersRepositoryImpl()
+    }
+    bind<EventEnricherRegistry> {
+        EventEnricherRegistryImpl(log = it.get())
     }
     bind<EventsRepository> {
         EventsRepositoryImpl(
@@ -94,6 +134,7 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
             networkAvailabilitySource = it.get(),
             sendOperation = it.get(),
             sendOperationScheduler = it.get(),
+            processForegroundDataProvider = it.get(),
         )
     }
     bind {
@@ -112,6 +153,7 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
             batchRepository = it.get(),
             configRepository = it.get(),
             log = it.get(),
+            customHeadersRepository = it.get(),
         )
     }
 }

@@ -19,6 +19,7 @@ import ru.wildanalytics.pub.analytics.db.InMemorySentInfoDao
 import ru.wildanalytics.pub.analytics.device.MetadataCollector
 import ru.wildanalytics.pub.analytics.domain.ApiData
 import ru.wildanalytics.pub.analytics.testMetaInfo
+import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepositoryImpl
 import ru.wildanalytics.pub.analytics.transport.Transport
 import ru.wildanalytics.pub.analytics.utils.EventsFactory
 import kotlin.time.Duration
@@ -54,6 +55,7 @@ internal class SendAllAnalyticEventsOperationTests {
             batchRepository = batchRepository,
             configRepository = configRepository,
             log = log,
+            customHeadersRepository = CustomHeadersRepositoryImpl(),
         )
         eventsRepository.clear()
         configRepository.updateConfig {

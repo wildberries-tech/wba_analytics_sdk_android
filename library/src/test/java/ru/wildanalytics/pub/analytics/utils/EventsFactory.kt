@@ -24,6 +24,7 @@ internal object EventsFactory {
         apiUrl = apiUrl,
         apiKey = apiKey,
         name = "event$id",
+        sessionValue = id.toULong(),
         time = testDate(),
         extras = JsonObject(mapOf("param1" to JsonPrimitive(id)))
     )
