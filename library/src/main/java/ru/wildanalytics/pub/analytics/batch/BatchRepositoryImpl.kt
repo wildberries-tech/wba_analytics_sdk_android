@@ -3,12 +3,13 @@ package ru.wildanalytics.pub.analytics.batch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
+import ru.wildanalytics.pub.analytics.MAX_EVENT_EXTRAS_SIZE_IN_BYTES
 import ru.wildanalytics.pub.analytics.WildAnalyticsLogger
 import ru.wildanalytics.pub.analytics.api.BatchModel
 import ru.wildanalytics.pub.analytics.api.Event
+import ru.wildanalytics.pub.analytics.db.OversizedEvent
 import ru.wildanalytics.pub.analytics.db.SentInfoDao
 import ru.wildanalytics.pub.analytics.db.SentInfoEntity
 import ru.wildanalytics.pub.analytics.db.TransactionRunner
@@ -16,8 +17,10 @@ import ru.wildanalytics.pub.analytics.device.MetadataCollector
 import ru.wildanalytics.pub.analytics.domain.ApiData
 import ru.wildanalytics.pub.analytics.event.EventsRepository
 import ru.wildanalytics.pub.analytics.logError
+import ru.wildanalytics.pub.analytics.logWarn
 import ru.wildanalytics.pub.analytics.util.ContentLengthCountingStream
 import ru.wildanalytics.pub.analytics.util.toServerModel
+import kotlin.coroutines.cancellation.CancellationException
 
 internal class BatchRepositoryImpl(
     private val metadataCollector: MetadataCollector,
@@ -30,7 +33,18 @@ internal class BatchRepositoryImpl(
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun getBatch(apiData: ApiData, config: BatchingConfig): BatchData? {
         val sentInfo = getSentInfo()
-        return fulfillBatch(sentInfo, apiData, config)
+        return try {
+            fulfillBatch(sentInfo, apiData, config)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            val oversized = eventsRepository.deleteOversizedEvents(MAX_EVENT_EXTRAS_SIZE_IN_BYTES)
+            if (oversized.isEmpty()) {
+                throw e
+            }
+            oversized.forEach(::logOversizedEventRemoved)
+            fulfillBatch(sentInfo, apiData, config)
+        }
     }
 
     private suspend fun getSentInfo(): SentInfoEntity = transactionRunner.withTransaction {
@@ -39,13 +53,13 @@ internal class BatchRepositoryImpl(
                 .also { sentInfoDao.upsert(it) }
     }
 
-    @OptIn(ExperimentalSerializationApi::class, InternalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class)
     private suspend fun fulfillBatch(
         sentInfo: SentInfoEntity,
         apiData: ApiData,
         config: BatchingConfig
     ): BatchData? = withContext(Dispatchers.IO) {
-        val meta = metadataCollector.collect().toServerModel(sentInfo.batchesSent + 1)
+        val meta = metadataCollector.collect(apiData.apiKey).toServerModel(sentInfo.batchesSent + 1)
         val countingStream = ContentLengthCountingStream()
         Json.encodeToStream(BatchModel(meta, emptyList()), countingStream)
         val eventsToSent = mutableListOf<Event>()
@@ -100,11 +114,17 @@ internal class BatchRepositoryImpl(
         maxSizeEvent: Pair<String, Long>,
         maxBatchSizeInBites: Int
     ) {
+        log.logWarn {
+            "Batch size exceeded $maxBatchSizeInBites bytes: count=$count, " +
+                "heaviest=${maxSizeEvent.first}, heaviestSize=${maxSizeEvent.second}"
+        }
+    }
+
+    private fun logOversizedEventRemoved(event: OversizedEvent) {
         log.logError {
-            error(Error("Batch size exceeded $maxBatchSizeInBites bytes"))
-            detail("count", count.toString())
-            detail("heaviest", maxSizeEvent.first)
-            detail("heaviestSize", maxSizeEvent.second.toString())
+            error(Error("Oversized event removed from database"))
+            detail("name", event.name)
+            detail("size", event.size.toString())
         }
     }
 
@@ -120,4 +140,3 @@ internal class BatchRepositoryImpl(
         eventsRepository.delete(eventIds)
     }
 }
-

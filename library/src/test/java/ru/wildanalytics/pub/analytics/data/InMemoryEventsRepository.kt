@@ -8,7 +8,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import ru.wildanalytics.pub.analytics.db.EventEntity
+import ru.wildanalytics.pub.analytics.db.OversizedEvent
 import ru.wildanalytics.pub.analytics.domain.ApiData
 import ru.wildanalytics.pub.analytics.event.EventsRepository
 import ru.wildanalytics.pub.analytics.util.CloseableSequence
@@ -70,6 +73,14 @@ internal class InMemoryEventsRepository : EventsRepository {
             }
         }
 
+    override suspend fun deleteOversizedEvents(maxSizeInBytes: Long): List<OversizedEvent> {
+        val oversized = eventsState.value.values
+            .map { OversizedEvent(id = it.id, name = it.name, size = it.extrasSizeInBytes()) }
+            .filter { it.size > maxSizeInBytes }
+        delete(oversized.map { it.id })
+        return oversized
+    }
+
     fun addEvents(events: Collection<EventEntity>) =
         updateEvents { it + events.associateBy { it.id } }
 
@@ -82,6 +93,8 @@ internal class InMemoryEventsRepository : EventsRepository {
     }
 
     private val EventEntity.apiData: ApiData get() = ApiData(apiUrl, apiKey)
+    private fun EventEntity.extrasSizeInBytes(): Long =
+        Json.encodeToString(JsonObject.serializer(), extras).encodeToByteArray().size.toLong()
     private fun EventEntity.addIdIfNew(): EventEntity =
         if (id == 0) copy(id = lastId.andIncrement) else this
 

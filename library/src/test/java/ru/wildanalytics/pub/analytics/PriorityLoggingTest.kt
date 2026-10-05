@@ -6,12 +6,14 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import ru.wildanalytics.pub.analytics.automatic.AutomaticEventsStrategy
 import ru.wildanalytics.pub.analytics.db.EventEntity
 import ru.wildanalytics.pub.analytics.event.EventsRepository
 import ru.wildanalytics.pub.analytics.session.SessionProvider
 import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepository
 import java.time.Clock
 import java.time.ZonedDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("Unused")
@@ -39,6 +41,8 @@ internal class PriorityLoggingTest : BehaviorSpec({
             coroutineScopeFactory = coroutineScopeFactory,
             customHeadersRepository = mockk<CustomHeadersRepository>(relaxed = true),
             enricherRegistry = EventEnricherRegistryImpl(mockk(relaxed = true)),
+            automaticEventsStrategy = AutomaticEventsStrategy.DoNotTrack,
+            commonParametersGate = CommonParametersGate(emptySet(), 5.seconds, mockk(relaxed = true)),
         )
 
         When("logEvent is called") {

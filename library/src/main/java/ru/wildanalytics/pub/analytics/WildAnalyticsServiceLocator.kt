@@ -2,6 +2,10 @@ package ru.wildanalytics.pub.analytics
 
 import android.content.Context
 import ru.wildanalytics.pub.analytics.WildAnalyticsServiceLocator.Builder
+import ru.wildanalytics.pub.analytics.automatic.AutomaticEventsApiKeyRegistry
+import ru.wildanalytics.pub.analytics.automatic.AutomaticEventsApiKeyRegistryImpl
+import ru.wildanalytics.pub.analytics.automatic.AutomaticEventsTracker
+import ru.wildanalytics.pub.analytics.automatic.AutomaticEventsTrackerImpl
 import ru.wildanalytics.pub.analytics.batch.BatchRepository
 import ru.wildanalytics.pub.analytics.batch.BatchRepositoryImpl
 import ru.wildanalytics.pub.analytics.config.ConfigRepository
@@ -11,10 +15,16 @@ import ru.wildanalytics.pub.analytics.db.TransactionRunner
 import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabase
 import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabaseFactory
 import ru.wildanalytics.pub.analytics.device.AdIdProvider
+import ru.wildanalytics.pub.analytics.device.DeviceHardwareInfoProvider
+import ru.wildanalytics.pub.analytics.device.DeviceHardwareInfoProviderImpl
 import ru.wildanalytics.pub.analytics.device.IpcServiceConfig
 import ru.wildanalytics.pub.analytics.device.MetadataCollector
+import ru.wildanalytics.pub.analytics.device.SystemLocaleProvider
+import ru.wildanalytics.pub.analytics.device.SystemLocaleProviderImpl
 import ru.wildanalytics.pub.analytics.device.WildDeviceInfoProvider
 import ru.wildanalytics.pub.analytics.device.WildDeviceInfoProviderImpl
+import ru.wildanalytics.pub.analytics.device.WildMarketingModelProvider
+import ru.wildanalytics.pub.analytics.device.WildMarketingModelProviderImpl
 import ru.wildanalytics.pub.analytics.event.EventsRepository
 import ru.wildanalytics.pub.analytics.event.EventsRepositoryImpl
 import ru.wildanalytics.pub.analytics.network.NetworkAvailabilitySource
@@ -41,7 +51,11 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
     bindInstance<CoroutineScopeFactory>(CoroutineScopeFactoryImpl())
 
     bind<IdGenerator> { RandomIdGenerator() }
-    bind { ProcessForegroundDataProvider() }
+    bind {
+        ProcessForegroundDataProvider(
+            scope = it.get<CoroutineScopeFactory>().create("ForegroundData")
+        )
+    }
     bind<SessionProvider> {
         SessionProviderImpl(
             idGenerator = it.get(),
@@ -50,10 +64,34 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
         )
     }
 
+    bind<DeviceHardwareInfoProvider> {
+        DeviceHardwareInfoProviderImpl(context = it.get())
+    }
+    bind<AutomaticEventsTracker.Factory> {
+        AutomaticEventsTracker.Factory {
+            AutomaticEventsTrackerImpl(
+                processForegroundDataProvider = it.get(),
+                deviceHardwareInfoProvider = it.get(),
+                deviceInfoProvider = it.get(),
+            )
+        }
+    }
+
     bind<WildDeviceInfoProvider> {
         WildDeviceInfoProviderImpl(
             context = it.get(),
             idGenerator = it.get(),
+        )
+    }
+    bind<WildMarketingModelProvider> {
+        WildMarketingModelProviderImpl(
+            log = it.get(),
+        )
+    }
+    bind<SystemLocaleProvider> {
+        SystemLocaleProviderImpl(
+            context = it.get(),
+            log = it.get(),
         )
     }
     bind {
@@ -84,10 +122,16 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
             logger = it.get()
         )
     }
+    bind<AutomaticEventsApiKeyRegistry> {
+        AutomaticEventsApiKeyRegistryImpl()
+    }
     bind {
         MetadataCollector(
             deviceInfoProvider = it.get(),
+            marketingModelProvider = it.get(),
+            systemLocaleProvider = it.get(),
             adIdProvider = it.get(),
+            automaticEventsApiKeyRegistry = it.get(),
             context = it.get(),
             clock = it.get(),
         )

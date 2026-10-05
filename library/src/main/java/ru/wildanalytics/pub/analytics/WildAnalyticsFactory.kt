@@ -3,15 +3,12 @@ package ru.wildanalytics.pub.analytics
 import android.content.Context
 import android.os.Build
 import android.os.Build.VERSION_CODES
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import ru.wildanalytics.pub.analytics.automatic.AutomaticEventsStrategy
 import ru.wildanalytics.pub.attribution.api.AttributionStrategy
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Значение идентификатора счётчика (будет выдано командой аналитики). Данный
@@ -31,20 +28,42 @@ public typealias ApiUrl = String
 public var analyticsCustomLogger: WildAnalyticsLogger? = null
 
 internal const val DEFAULT_PROD_URL = "https://wba.wb.ru/m/batch"
+internal const val MAX_COMMON_PARAMETER_KEY_LENGTH = 40
+public val REQUIRED_COMMON_PARAMETERS_TIMEOUT: Duration = 5.seconds
 
 /**
  * @param attributionStrategy стратегия проверки атрибуции.
  * По умолчанию не проверяем.
+ * @param enableAutomaticEvents
+ * включите (true) для автоматического отслеживания установок, запусков приложения и времени активности.
+ * Если ваш продукт — библиотека для интеграции, держите false.
+ * @param requiredCommonParameters ключи общих параметров, без которых события не должны уходить.
+ * Обработка событий (включая автоматические) придерживается, пока каждый ключ не будет присвоен через
+ * [WildAnalytics.setCommonParameter] / [WildAnalytics.setCommonParameters] (значение `null` тоже считается),
+ * но не дольше [REQUIRED_COMMON_PARAMETERS_TIMEOUT]. Ожидание одноразовое: после открытия
+ * события обрабатываются без задержки.
  * */
 public fun WildAnalytics(
     context: Context,
     apiUrlProvider: () -> ApiUrl = { DEFAULT_PROD_URL },
     apiKey: ApiKey,
+    enableAutomaticEvents: Boolean,
     isCollectionEnabled: Boolean = true,
     attributionStrategy: AttributionStrategy = AttributionStrategy.NotCheckAttribution,
+    requiredCommonParameters: Set<String> = emptySet(),
 ): WildAnalytics {
     require(apiKey.isNotEmpty())
+    require(requiredCommonParameters.all { it.length in 1..MAX_COMMON_PARAMETER_KEY_LENGTH })
     val wildAnalyticsLocator = WildAnalyticsServiceLocator.getInstance(context)
+    val automaticEventsStrategy = if (enableAutomaticEvents) {
+        AutomaticEventsStrategy.Track(
+            apiKey = apiKey,
+            registry = wildAnalyticsLocator.get(),
+            trackerFactory = wildAnalyticsLocator.get(),
+        )
+    } else {
+        AutomaticEventsStrategy.DoNotTrack
+    }
     val analytics = WildAnalyticsImpl(
         apiUrlProvider = apiUrlProvider,
         apiKey = apiKey,
@@ -56,6 +75,12 @@ public fun WildAnalytics(
         coroutineScopeFactory = wildAnalyticsLocator.get(),
         customHeadersRepository = wildAnalyticsLocator.get(),
         enricherRegistry = wildAnalyticsLocator.get(),
+        automaticEventsStrategy = automaticEventsStrategy,
+        commonParametersGate = CommonParametersGate(
+            requiredKeys = requiredCommonParameters,
+            timeout = REQUIRED_COMMON_PARAMETERS_TIMEOUT,
+            log = wildAnalyticsLocator.get(),
+        ),
     )
     attributionStrategy.execute(
         context = wildAnalyticsLocator.get(),
@@ -66,8 +91,32 @@ public fun WildAnalytics(
 }
 
 /**
+ * @param attributionStrategy стратегия проверки атрибуции.
+ * По умолчанию не проверяем.
+ *
+ * Выделен в отдельный метод для обратной совместимости.
+ * */
+public fun WildAnalytics(
+    context: Context,
+    apiUrlProvider: () -> ApiUrl = { DEFAULT_PROD_URL },
+    apiKey: ApiKey,
+    isCollectionEnabled: Boolean = true,
+    attributionStrategy: AttributionStrategy = AttributionStrategy.NotCheckAttribution,
+): WildAnalytics = WildAnalytics(
+    context = context,
+    apiUrlProvider = apiUrlProvider,
+    apiKey = apiKey,
+    enableAutomaticEvents = false,
+    isCollectionEnabled = isCollectionEnabled,
+    attributionStrategy = attributionStrategy,
+)
+
+/**
  * @param isAttributionTrackingEnabled стратегия проверки атрибуции.
  * По умолчанию не проверяем.
+ * @param enableAutomaticEvents
+ * включите (true) для автоматического отслеживания установок, запусков приложения и времени активности.
+ * Если ваш продукт — библиотека для интеграции, держите false.
  * */
 @Suppress("FunctionNaming")
 public fun WildAnalytics(
@@ -76,6 +125,7 @@ public fun WildAnalytics(
     apiKey: ApiKey,
     isCollectionEnabled: Boolean = true,
     isAttributionTrackingEnabled: Boolean = false,
+    enableAutomaticEvents: Boolean = false,
     handleAttributionLink: suspend (link: String) -> Unit = {},
 ) {
     WildAnalytics(
@@ -83,34 +133,13 @@ public fun WildAnalytics(
         apiUrlProvider = apiUrlProvider,
         apiKey = apiKey,
         isCollectionEnabled = isCollectionEnabled,
+        enableAutomaticEvents = enableAutomaticEvents,
         attributionStrategy = if (isAttributionTrackingEnabled) {
             AttributionStrategy.HandleLinkOnAttribution(handleLink = handleAttributionLink)
         } else {
             AttributionStrategy.NotCheckAttribution
-        }
+        },
     )
-}
-
-internal fun <T> Flow<T>.rateLimit(delay: Duration): Flow<T> = channelFlow {
-    var latest: T? = null
-    var job: Job? = null
-
-    fun emitAfterDelay() {
-        if (job != null) return
-
-        job = launch {
-            delay(delay)
-            send(latest!!)
-            job = null
-        }
-    }
-
-    launch {
-        collect {
-            latest = it
-            emitAfterDelay()
-        }
-    }
 }
 
 internal fun Map<String, String>.toJsonObject(): JsonObject {

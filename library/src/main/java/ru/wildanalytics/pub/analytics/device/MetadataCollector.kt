@@ -11,7 +11,8 @@ import android.util.Size
 import android.view.WindowManager
 import androidx.core.content.getSystemService
 import androidx.core.content.pm.PackageInfoCompat
-import androidx.core.os.ConfigurationCompat
+import ru.wildanalytics.pub.analytics.ApiKey
+import ru.wildanalytics.pub.analytics.automatic.AutomaticEventsApiKeyRegistry
 import ru.wildanalytics.pub.analytics.domain.MetaInfo
 import ru.wildanalytics.pub.analytics.domain.NetworkType
 import ru.wildanalytics.pub.analytics.osBuild
@@ -23,22 +24,23 @@ import java.time.OffsetDateTime
  */
 internal class MetadataCollector(
     private val deviceInfoProvider: WildDeviceInfoProvider,
+    private val marketingModelProvider: WildMarketingModelProvider,
+    private val systemLocaleProvider: SystemLocaleProvider,
     private val adIdProvider: AdIdProvider,
+    private val automaticEventsApiKeyRegistry: AutomaticEventsApiKeyRegistry,
     private val context: Context,
     private val clock: Clock,
 ) {
 
     private val displayResolution: Size by lazy { displayResolution() }
 
-    suspend fun collect(): MetaInfo {
+    suspend fun collect(apiKey: ApiKey): MetaInfo {
         val adIdInfo = adIdProvider.getAdIdInfo()
         return MetaInfo(
-            locale = ConfigurationCompat.getLocales(context.resources.configuration).get(0)
-                ?.toLanguageTag()
-                .orEmpty(),
+            locale = systemLocaleProvider.systemLocaleTag,
             device = Build.DEVICE,
             sdkVersion = Build.VERSION.SDK_INT.toString(),
-            model = Build.DEVICE,
+            model = marketingModelProvider.marketingModel.ifBlank { Build.MODEL },
             mobileDeviceType = getDeviceType(),
             product = ANDROID,
             osBuild = osBuild,
@@ -58,6 +60,7 @@ internal class MetadataCollector(
             deviceAdId = adIdInfo.id,
             deviceAdIdType = adIdInfo.type,
             timezone = clock.zone.id,
+            enableAutomaticEvents = automaticEventsApiKeyRegistry.isEnabled(apiKey),
         )
     }
 

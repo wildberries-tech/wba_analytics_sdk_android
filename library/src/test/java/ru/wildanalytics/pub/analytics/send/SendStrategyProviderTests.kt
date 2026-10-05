@@ -21,7 +21,12 @@ internal class SendStrategyProviderTests {
 
     lateinit var subject: SendStrategyProvider
     val networkAvailabilityFlow = MutableSharedFlow<Boolean>(replay = 1)
-    val processForegroundDataFlow = MutableSharedFlow<ProcessForegroundData>(replay = 1)
+    val processForegroundDataFlow = kotlinx.coroutines.flow.MutableStateFlow(
+        ProcessForegroundData(
+            isInForeground = false,
+            isFromForeground = false
+        )
+    )
 
     @BeforeEach
     fun setUp() {
@@ -34,7 +39,7 @@ internal class SendStrategyProviderTests {
             sendOperation = mockk(),
             sendOperationScheduler = mockk(),
             processForegroundDataProvider = mockk() {
-                every { processForegroundData } answers { processForegroundDataFlow.distinctUntilChanged() }
+                every { processForegroundData } answers { processForegroundDataFlow }
             },
         )
     }
@@ -47,7 +52,7 @@ internal class SendStrategyProviderTests {
         turnOffNet()
         turnOnNet()
         turnOffNet()
-        assertEquals(1, strategies.size)
+        assertEquals(2, strategies.size)
         assert(strategies.last() is ImmediateSendStrategy)
     }
 
@@ -57,10 +62,10 @@ internal class SendStrategyProviderTests {
         moveToForeground()
         turnOnNet()
         moveToBackground()
-        assertEquals(1, strategies.size)
+        assertEquals(2, strategies.size)
         assert(strategies.last() is ImmediateSendStrategy)
         turnOffNet()
-        assertEquals(2, strategies.size)
+        assertEquals(3, strategies.size)
         assert(strategies.last() is SchedulingSendStrategy)
     }
 

@@ -18,7 +18,7 @@ internal class SendStrategyProvider(
     private val networkAvailabilitySource: NetworkAvailabilitySource,
     private val sendOperation: SendAllAnalyticEventsOperation,
     private val sendOperationScheduler: SendOperationScheduler,
-    processForegroundDataProvider: ProcessForegroundDataProvider = ProcessForegroundDataProvider(),
+    processForegroundDataProvider: ProcessForegroundDataProvider,
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)

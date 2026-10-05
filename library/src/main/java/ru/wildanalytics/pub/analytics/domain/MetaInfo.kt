@@ -5,9 +5,9 @@ import java.time.OffsetDateTime
 
 internal class MetaInfo(
     /**
-     * Язык выставленный на мобильном устройстве в формате IETF BCP 47.
+     * Язык и регион операционной системы в формате IETF BCP 47.
      *
-     * `ru_RU, ru`
+     * Не зависит от локали, выставленной приложением: `en-US`, `ru-RU`, `ru`.
      */
     val locale: String,
 
@@ -123,4 +123,9 @@ internal class MetaInfo(
      * Текущий часовой пояс устройства, например `Europe/Moscow`.
      */
     val timezone: String,
+
+    /**
+     * Включены ли автоматические события для данного инстанса аналитики.
+     */
+    val enableAutomaticEvents: Boolean,
 )

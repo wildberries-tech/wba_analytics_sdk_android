@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import ru.wildanalytics.pub.analytics.WildAnalyticsLogger
 import ru.wildanalytics.pub.analytics.db.AnalyticsEventsDao
 import ru.wildanalytics.pub.analytics.db.EventEntity
+import ru.wildanalytics.pub.analytics.db.OversizedEvent
 import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabase
 import ru.wildanalytics.pub.analytics.domain.ApiData
 import ru.wildanalytics.pub.analytics.logDebug
@@ -57,4 +58,13 @@ internal class EventsRepositoryImpl(
             }
         }
     }
+
+    override suspend fun deleteOversizedEvents(maxSizeInBytes: Long): List<OversizedEvent> =
+        db.withTransaction {
+            eventsDao.getOversizedEvents(maxSizeInBytes).also { oversized ->
+                if (oversized.isNotEmpty()) {
+                    eventsDao.delete(oversized.map { it.id })
+                }
+            }
+        }
 }

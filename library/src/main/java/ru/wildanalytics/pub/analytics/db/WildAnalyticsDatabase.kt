@@ -110,6 +110,9 @@ internal interface AnalyticsEventsDao {
 
     @Query("DELETE FROM EventEntity WHERE id IN (SELECT id FROM EventEntity LIMIT :count)")
     suspend fun deleteEvents(count: Int): Int
+
+    @Query("SELECT id, name, length(CAST(extras AS BLOB)) AS size FROM EventEntity WHERE length(CAST(extras AS BLOB)) > :maxSizeInBytes")
+    suspend fun getOversizedEvents(maxSizeInBytes: Long): List<OversizedEvent>
 }
 
 @Entity
@@ -133,3 +136,9 @@ internal interface SentInfoDao {
     @Upsert
     suspend fun upsert(info: SentInfoEntity)
 }
+
+internal data class OversizedEvent(
+    val id: Int,
+    val name: String,
+    val size: Long,
+)

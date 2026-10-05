@@ -28,7 +28,7 @@ internal class SendAllAnalyticEventsOperationTests {
     private lateinit var subject: SendAllAnalyticEventsOperation
     private val sentInfoDao = InMemorySentInfoDao()
     private val metadataCollector = mockk<MetadataCollector> {
-        coEvery { collect() } returns testMetaInfo()
+        coEvery { collect(any()) } returns testMetaInfo()
     }
     private val eventsRepository = InMemoryEventsRepository()
     private val transactionRunner = TestTransactionRunner()

@@ -45,4 +45,5 @@ internal fun MetaInfo.toServerModel(batchNumber: Long): Meta = Meta(
     deviceAdId = deviceAdId,
     deviceAdIdType = deviceAdIdType,
     timezone = timezone,
+    enableAutomaticEvents = enableAutomaticEvents,
 )

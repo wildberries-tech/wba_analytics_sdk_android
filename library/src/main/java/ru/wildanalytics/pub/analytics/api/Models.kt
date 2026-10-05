@@ -116,4 +116,7 @@ internal data class Meta(
 
     @SerialName("timezone")
     val timezone: String,
+
+    @SerialName("enable_automatic_events")
+    val enableAutomaticEvents: Boolean,
 )
