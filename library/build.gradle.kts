@@ -48,6 +48,10 @@ dependencies {
 
 val schemaDir = File(projectDir, "schemas")
 
+val libraryVersion: String = providers.environmentVariable("CI_COMMIT_TAG")
+    .orElse(providers.gradleProperty("wild.analytics.version"))
+    .get()
+
 android {
     namespace = "ru.wildanalytics.pub.WildAnalytics"
     compileSdk = 35
@@ -58,6 +62,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["moduleName"] = name
         consumerProguardFiles("$rootDir/consumer-rules.pro")
+        buildConfigField("String", "LIBRARY_VERSION", "\"$libraryVersion\"")
     }
 
     buildFeatures {
