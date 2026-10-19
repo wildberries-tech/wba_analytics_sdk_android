@@ -53,6 +53,23 @@ return WildAnalytics(
   менять в рантайме).
 - `requiredCommonParameters: Set<String>` — ключи общих параметров, без которых события не должны уходить
   (см. [Обязательные общие параметры](#обязательные-общие-параметры)). По умолчанию пусто.
+- `fallbackApiUrl: String?` — резервный URL отправки (полный, https). По умолчанию `null` (см. [Резервный домен](#резервный-домен)).
+
+### Резервный домен
+
+Если задан `fallbackApiUrl`, SDK переключает отправку на резервный URL до перезапуска процесса,
+когда 3 попытки отправки батча подряд не прошли, а в момент каждой из них активная сеть прошла проверку
+доступа в интернет. Считаются сетевые ошибки (соединение, DNS, таймауты, SSL) и ответы HTTP 5xx. Ответ с кодом ниже 500 означает,
+что хост доступен: такой ответ и попытка без интернета обнуляют счётчик.
+
+```kotlin
+val analytics = WildAnalytics(
+    apiUrlProvider = { "https://a.wb.ru/m/batch" },
+    fallbackApiUrl = "https://afb.wb.ru/m/batch",
+    apiKey = "ВАШ_API_KEY",
+    isCollectionEnabled = true,
+)
+```
 
 ## Конфигурация аналитики (WildAnalyticsConfig)
 
@@ -216,6 +233,24 @@ analytics.isCollectionEnabled = false // или true
 ```kotlin
 analytics.finish()
 ```
+
+### Диагностика потерь событий
+
+SDK сообщает о потерях и сбоях через обычные методы `WildAnalyticsLogger`, новых методов реализовывать не нужно.
+Если установлен кастомный логгер, записи придут в него, иначе в Logcat с тегом `WildAnalytics`.
+
+- `ERROR` приходит в `logError(e, details)`: `e.message` начинается с маркера (`[wba_queue_eviction] …`),
+  атрибуты лежат в `details`.
+- `WARN` приходит в `logWarn(message)` одной строкой: `[wba_send_failed] … code=500, attempts=10, …`.
+- Во всех записях есть атрибут `sdk_version`. Если `isEnabled` у логгера `false`, диагностика не передаётся.
+
+| Маркер | Уровень | Когда | Атрибуты |
+|---|---|---|---|
+| `wba_queue_eviction` | ERROR | из БД удалены события сверх `maxEventsInCache`; на каждую очистку | `op_id`, `time`, `limit`, `size_before`, `size_after`, `removed`, `removed_important`, `groups` (`name:importance=count;…`, топ-20), `other_groups`, `other_count` |
+| `wba_insert_failed` | ERROR | событие не удалось сохранить в БД, оно потеряно; одна запись на тип исключения за процесс | `name`, `exception` |
+| `wba_send_failed` | WARN | батч не отправлен после всех попыток, события остаются в БД | `code` (только для HTTP-ответа), `exception`, `attempts`, `events`, `batch_number`, `batch_size`, `host`, `endpoint` (`primary`/`fallback`), `network`, `validated` |
+| `wba_endpoint_fallback` | ERROR | отправка переключена на резервный домен; один раз за процесс для хоста, в момент переключения | `primary_host`, `fallback_host`, `code`, `exception`, `attempt`, `network`, `validated`, `batch_number` |
+| `wba_send_loop_restarted` | WARN | цикл отправки упал и будет перезапущен с задержкой | `exception`, `attempt` |
 
 ### Описание параметров
 

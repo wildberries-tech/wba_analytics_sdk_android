@@ -48,6 +48,20 @@ return WildAnalytics(
 - `enableAutomaticEvents: Boolean` — enable (`true`) for automatic tracking of installations, application launches, and active time. If your product is a library for integration, keep `false`. Defaults to `false`.
 - `isCollectionEnabled` — flag that controls whether event processing is enabled by default (can be changed at runtime).
 - `requiredCommonParameters: Set<String>` — keys of common parameters without which events should not be sent (see [Required Common Parameters](#required-common-parameters)). Defaults to empty.
+- `fallbackApiUrl: String?` — fallback destination URL for events. Defaults to `null`.
+
+### Fallback Domain
+
+When `fallbackApiUrl` is configured, the SDK switches event routing to the fallback endpoint until process restart after 3 consecutive failures to deliver a batch while active internet connectivity is verified.
+
+```kotlin
+val analytics = WildAnalytics(
+    apiUrlProvider = { "https://a.wb.ru/m/batch" },
+    fallbackApiUrl = "https://afb.wb.ru/m/batch",
+    apiKey = "YOUR_API_KEY",
+    isCollectionEnabled = true,
+)
+```
 
 ## Analytics Configuration (WildAnalyticsConfig)
 
