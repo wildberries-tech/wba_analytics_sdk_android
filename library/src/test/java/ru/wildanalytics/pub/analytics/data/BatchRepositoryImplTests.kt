@@ -2,10 +2,12 @@ package ru.wildanalytics.pub.analytics.data
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
+import ru.wildanalytics.pub.analytics.MAX_EVENT_EXTRAS_SIZE_IN_BYTES
 import ru.wildanalytics.pub.analytics.TestTransactionRunner
 import ru.wildanalytics.pub.analytics.api.BatchModel
 import ru.wildanalytics.pub.analytics.api.Event
@@ -13,6 +15,7 @@ import ru.wildanalytics.pub.analytics.batch.BatchRepositoryImpl
 import ru.wildanalytics.pub.analytics.batch.BatchingConfig
 import ru.wildanalytics.pub.analytics.config.WildAnalyticsConfig
 import ru.wildanalytics.pub.analytics.db.EventEntity
+import ru.wildanalytics.pub.analytics.db.OversizedEvent
 import ru.wildanalytics.pub.analytics.db.SentInfoDao
 import ru.wildanalytics.pub.analytics.db.SentInfoEntity
 import ru.wildanalytics.pub.analytics.db.TransactionRunner
@@ -106,6 +109,47 @@ internal class BatchRepositoryImplTests : BehaviorSpec({
         }
     }
 
+    Given("Reading events fails because of an oversized row") {
+        val eventEntities: List<EventEntity> = EventsFactory.createEntities(2)
+        val oversizedEvent = OversizedEvent(id = 100, name = "begin_checkout", size = 3_000_000)
+        val sentInfoDao = createSentDao()
+        val eventsRepository: EventsRepository = mockk {
+            coEvery { getEventsSequence(any(), any()) } throws
+                IllegalStateException("Row too big to fit into CursorWindow") andThen
+                getEventSequence(eventEntities)
+            coEvery { deleteOversizedEvents(any()) } returns listOf(oversizedEvent)
+        }
+        val subject = createBatchRepository(eventsRepository, sentInfoDao)
+
+        When("Batch requested") {
+            val batch = subject.getBatch(apiData, WildAnalyticsConfig.Default.batching)
+
+            Then("Oversized events are removed and batch is read again") {
+                coVerify(exactly = 1) { eventsRepository.deleteOversizedEvents(MAX_EVENT_EXTRAS_SIZE_IN_BYTES) }
+                assertNotNull(batch)
+                assertEquals(eventEntities.map { it.id }, batch.eventIds)
+            }
+        }
+    }
+
+    Given("Reading events fails and there are no oversized rows") {
+        val error = IllegalStateException("disk I/O error")
+        val eventsRepository: EventsRepository = mockk {
+            coEvery { getEventsSequence(any(), any()) } throws error
+            coEvery { deleteOversizedEvents(any()) } returns emptyList()
+        }
+        val subject = createBatchRepository(eventsRepository)
+
+        When("Batch requested") {
+            val thrown = runCatching { subject.getBatch(apiData, WildAnalyticsConfig.Default.batching) }.exceptionOrNull()
+
+            Then("Original error is propagated without retry") {
+                assertEquals(error.message, thrown?.message)
+                coVerify(exactly = 1) { eventsRepository.getEventsSequence(any(), any()) }
+            }
+        }
+    }
+
     Given("No events in store") {
         val subject = createBatchRepository(emptyList())
 
@@ -123,17 +167,24 @@ private fun createBatchRepository(
     eventEntities: List<EventEntity>,
     sentInfoDao: SentInfoDao = createSentDao()
 ): BatchRepositoryImpl {
-    val meta = testMetaInfo()
-    val metaCollector: MetadataCollector = mockk {
-        coEvery { collect() } returns meta
-    }
-    val transactionRunner: TransactionRunner = TestTransactionRunner()
     val eventsRepository: EventsRepository = mockk {
         coEvery { getEventsSequence(any(), any()) }.answers {
             val limit = secondArg<Int>()
             getEventSequence(eventEntities.take(limit))
         }
     }
+    return createBatchRepository(eventsRepository, sentInfoDao)
+}
+
+private fun createBatchRepository(
+    eventsRepository: EventsRepository,
+    sentInfoDao: SentInfoDao = createSentDao(),
+): BatchRepositoryImpl {
+    val meta = testMetaInfo()
+    val metaCollector: MetadataCollector = mockk {
+        coEvery { collect(any()) } returns meta
+    }
+    val transactionRunner: TransactionRunner = TestTransactionRunner()
     return BatchRepositoryImpl(
         metadataCollector = metaCollector,
         sentInfoDao = sentInfoDao,

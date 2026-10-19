@@ -41,9 +41,16 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.ext.junit)
+    testRuntimeOnly(libs.junit.vintage.engine)
 }
 
 val schemaDir = File(projectDir, "schemas")
+
+val libraryVersion: String = providers.environmentVariable("CI_COMMIT_TAG")
+    .orElse(providers.gradleProperty("wild.analytics.version"))
+    .get()
 
 android {
     namespace = "ru.wildanalytics.pub.WildAnalytics"
@@ -55,6 +62,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["moduleName"] = name
         consumerProguardFiles("$rootDir/consumer-rules.pro")
+        buildConfigField("String", "LIBRARY_VERSION", "\"$libraryVersion\"")
     }
 
     buildFeatures {
@@ -70,6 +78,7 @@ android {
     testOptions {
         unitTests.all {
             it.useJUnitPlatform()
+            it.systemProperty("net.bytebuddy.experimental", "true")
         }
     }
 

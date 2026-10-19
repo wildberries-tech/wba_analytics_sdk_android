@@ -16,6 +16,9 @@ import ru.wildanalytics.pub.analytics.logDebug
 import ru.wildanalytics.pub.analytics.logError
 import ru.wildanalytics.pub.analytics.network.NetworkAvailabilitySource
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 internal interface SendStrategy {
     suspend operator fun invoke(config: WildAnalyticsConfig)
@@ -60,11 +63,12 @@ internal class ImmediateSendStrategy(
     }
 
     private suspend fun sendEventsProcess(config: WildAnalyticsConfig) {
-        eventsRepository.deleteOldestEventsThatExceed(config.maxEventsInCache)
+        var failedAttempts = 0
         while (currentCoroutineContext().isActive) {
             try {
                 val apiData = eventsRepository.awaitFirstApiData()
                 sendOperation.execute(apiData, config)
+                failedAttempts = 0
                 val delay = config.delays.delayBetweenOperations
                 log.logDebug { "Events in db are over, await new events after $delay" }
                 delay(delay)
@@ -74,12 +78,24 @@ internal class ImmediateSendStrategy(
                 if (log.isEnabled) {
                     log.logException(e)
                 }
+                delay(errorDelay(config, ++failedAttempts))
             } catch (e: OutOfMemoryError) {
                 log.logError {
                     error(e)
                     detail("context", "sendEventsProcess")
                 }
+                delay(errorDelay(config, ++failedAttempts))
             }
         }
     }
+
+    private fun errorDelay(config: WildAnalyticsConfig, failedAttempts: Int): Duration {
+        val multiplier = 1 shl (failedAttempts - 1).coerceIn(0, MAX_ERROR_DELAY_SHIFT)
+        val baseDelay = config.delays.delayBetweenOperations.coerceAtLeast(MIN_ERROR_DELAY)
+        return (baseDelay * multiplier).coerceAtMost(MAX_ERROR_DELAY)
+    }
 }
+
+private const val MAX_ERROR_DELAY_SHIFT = 10
+private val MIN_ERROR_DELAY = 1.seconds
+private val MAX_ERROR_DELAY = 5.minutes

@@ -15,6 +15,14 @@ internal object EventsFactory {
     fun createEntities(count: Int, apiUrl: ApiUrl = "apiUrl", apiKey: ApiKey = "apiKey"): List<EventEntity> = (1..count)
         .map { createEvent(apiUrl, apiKey) }
 
+    fun createEntity(
+        id: Int,
+        name: String,
+        apiUrl: ApiUrl = "apiUrl",
+        apiKey: ApiKey = "apiKey",
+        importance: Int = EventEntity.IMPORTANCE_NORMAL,
+    ): EventEntity = createEvent(apiUrl = apiUrl, apiKey = apiKey, id = id).copy(name = name, importance = importance)
+
     private fun createEvent(
         apiUrl: ApiUrl,
         apiKey: ApiKey,

@@ -7,18 +7,16 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import ru.wildanalytics.pub.analytics.WildAnalyticsLogger
 import ru.wildanalytics.pub.analytics.db.AnalyticsEventsDao
 import ru.wildanalytics.pub.analytics.db.EventEntity
+import ru.wildanalytics.pub.analytics.db.OversizedEvent
 import ru.wildanalytics.pub.analytics.db.WildAnalyticsDatabase
 import ru.wildanalytics.pub.analytics.domain.ApiData
-import ru.wildanalytics.pub.analytics.logDebug
 import ru.wildanalytics.pub.analytics.util.CloseableSequence
 
 internal class EventsRepositoryImpl(
     private val eventsDao: AnalyticsEventsDao,
     private val db: WildAnalyticsDatabase,
-    private val log: WildAnalyticsLogger,
 ) : EventsRepository {
 
     private val cursorMapper = EventSequenceFromCursorMapper()
@@ -46,15 +44,30 @@ internal class EventsRepositoryImpl(
     ): CloseableSequence<EventEntity> =
         cursorMapper.mapToSequence(eventsDao.queryFirst(apiData.apiKey, apiData.apiUrl, limit))
 
-    override suspend fun deleteOldestEventsThatExceed(allowedEventsInCacheCount: Int) {
+    override suspend fun deleteOldestEventsThatExceed(allowedEventsInCacheCount: Int): EvictionResult? =
         db.withTransaction {
             val count = eventsDao.getCount()
             val exceededCount = count - allowedEventsInCacheCount
             if (exceededCount > 0) {
-                log.logDebug { "Events in database($count) more than allowed($allowedEventsInCacheCount). Remove first exceeded($exceededCount)" }
+                val groups = eventsDao.getEvictionCandidates(exceededCount)
                 val removedCount = eventsDao.deleteEvents(exceededCount)
-                log.logDebug { "Removed $removedCount exceeded events" }
+                EvictionResult(
+                    limit = allowedEventsInCacheCount,
+                    sizeBefore = count,
+                    removed = removedCount,
+                    groups = groups,
+                )
+            } else {
+                null
             }
         }
-    }
+
+    override suspend fun deleteOversizedEvents(maxSizeInBytes: Long): List<OversizedEvent> =
+        db.withTransaction {
+            eventsDao.getOversizedEvents(maxSizeInBytes).also { oversized ->
+                if (oversized.isNotEmpty()) {
+                    eventsDao.delete(oversized.map { it.id })
+                }
+            }
+        }
 }

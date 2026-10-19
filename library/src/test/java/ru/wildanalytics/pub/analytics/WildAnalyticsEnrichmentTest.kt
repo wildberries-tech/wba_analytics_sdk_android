@@ -7,12 +7,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.serialization.json.JsonPrimitive
+import ru.wildanalytics.pub.analytics.automatic.AutomaticEventsStrategy
 import ru.wildanalytics.pub.analytics.event.EventsRepository
 import ru.wildanalytics.pub.analytics.session.SessionProvider
 import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepository
 import ru.wildanalytics.pub.analytics.utils.TestLogger
 import java.time.Clock
 import java.time.ZonedDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("Unused")
@@ -42,6 +44,8 @@ internal class WildAnalyticsEnrichmentTest : BehaviorSpec({
             coroutineScopeFactory = coroutineScopeFactory,
             customHeadersRepository = customHeadersRepository,
             enricherRegistry = EventEnricherRegistryImpl(TestLogger()),
+            automaticEventsStrategy = AutomaticEventsStrategy.DoNotTrack,
+            commonParametersGate = CommonParametersGate(emptySet(), 5.seconds, mockk(relaxed = true)),
         )
 
         When("an enricher is registered after construction and an event is logged") {

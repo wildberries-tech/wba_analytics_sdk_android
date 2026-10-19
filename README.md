@@ -1,12 +1,51 @@
 # Wild Analytics Android Client
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wild_analytics_sdk_android/blob/develop/README-en.md)
-[![version](https://img.shields.io/badge/version-1.0.48-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.48)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README-en.md)
+[![version](https://img.shields.io/badge/version-1.0.62-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.62)
 
 Клиентская андроид библиотека для Wildberries аналитики.
 
 ## Подключение библиотеки
 
-Пока [отсюда](library/releases/ru/wildberries/analytics2.public) доставать aar.
+Библиотеку можно подключить через Maven-репозиторий в GitHub или напрямую файлом AAR.
+
+### Способ 1: Подключение через Maven (Рекомендуемый)
+
+Добавьте репозиторий в `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "WildAnalytics"
+            url = uri("https://raw.githubusercontent.com/wildberries-tech/wba_analytics_sdk_android/develop/library/releases")
+        }
+    }
+}
+```
+
+В `build.gradle.kts` вашего модуля добавьте зависимость:
+
+```kotlin
+dependencies {
+    implementation("ru.wildanalytics:pub:1.0.62")
+}
+```
+
+### Способ 2: Прямое подключение AAR
+
+Вы можете скачать файл `.aar` напрямую из репозитория:
+- [Актуальный релиз 1.0.62](library/releases/ru/wildanalytics/pub/1.0.62)
+- [Архив версий](library/releases/ru/wildanalytics/pub)
+
+Поместите файл в папку `app/libs/` и добавьте зависимость:
+
+```kotlin
+dependencies {
+    implementation(files("libs/pub-1.0.62.aar"))
+}
+```
 
 > [!IMPORTANT]
 > Если вы переходите со старой версии `WBAnalytics2`, обязательно ознакомьтесь с [Руководством по миграции](./Migration_from_WBAnalytics2_to_WildAnalytics.md).
@@ -46,10 +85,30 @@ return WildAnalytics(
 **Пояснения к параметрам конструктора:**
 
 - `apiUrlProvider` — функция, возвращающая URL для отправки аналитики (обычно
-  `"https://analytics.wb.ru/m/batch"`).
+  `"https://wba.wb.ru/m/batch"`).
 - `apiKey` — API-ключ для авторизации в сервисе аналитики.
+- `enableAutomaticEvents: Boolean` — включите (`true`) для автоматического отслеживания установок, запусков приложения и времени активности. Если ваш продукт — библиотека для интеграции, держите `false`. По умолчанию `false`.
 - `isCollectionEnabled` — флаг, отвечающий за то, включена ли обработка событий по умолчанию (можно
   менять в рантайме).
+- `requiredCommonParameters: Set<String>` — ключи общих параметров, без которых события не должны уходить
+  (см. [Обязательные общие параметры](#обязательные-общие-параметры)). По умолчанию пусто.
+- `fallbackApiUrl: String?` — резервный URL отправки (полный, https). По умолчанию `null` (см. [Резервный домен](#резервный-домен)).
+
+### Резервный домен
+
+Если задан `fallbackApiUrl`, SDK переключает отправку на резервный URL до перезапуска процесса,
+когда 3 попытки отправки батча подряд не прошли, а в момент каждой из них активная сеть прошла проверку
+доступа в интернет. Считаются сетевые ошибки (соединение, DNS, таймауты, SSL) и ответы HTTP 5xx. Ответ с кодом ниже 500 означает,
+что хост доступен: такой ответ и попытка без интернета обнуляют счётчик.
+
+```kotlin
+val analytics = WildAnalytics(
+    apiUrlProvider = { "https://a.wb.ru/m/batch" },
+    fallbackApiUrl = "https://afb.wb.ru/m/batch",
+    apiKey = "ВАШ_API_KEY",
+    isCollectionEnabled = true,
+)
+```
 
 ## Конфигурация аналитики (WildAnalyticsConfig)
 
@@ -129,7 +188,40 @@ analytics.logEvent(
 ```kotlin
 analytics.setCommonParameter("client_id", "123")
 analytics.setCommonParameters(mapOf("user_id" to "456", "app_version" to "1.2.3"))
+
+// типизированные значения попадают в JSON события как число/boolean, а не строка
+analytics.setCommonParameter("vpn_status", 1)
+analytics.setCommonParameter("is_authorized", true)
+
+// удаление параметра любого типа
+analytics.setCommonParameter("vpn_status", null)
 ```
+
+#### Обязательные общие параметры
+
+Общие параметры подмешиваются в событие в момент `logEvent`. Если приложение выставляет их
+асинхронно (например, `client_id` читается из БД), самые ранние события — пуши при закрытом
+приложении, автоматические события SDK — могут уйти без них. Чтобы этого не происходило,
+перечислите такие ключи при создании экземпляра:
+
+```kotlin
+val analytics = WildAnalytics(
+    context = context,
+    apiKey = "ВАШ_API_KEY",
+    enableAutomaticEvents = true,
+    requiredCommonParameters = setOf("client_id", "lang", "country"),
+)
+```
+
+SDK придержит обработку событий, пока каждый из ключей не будет присвоен через
+`setCommonParameter` / `setCommonParameters` (значение `null` тоже считается присвоением —
+так, например, помечают анонимного пользователя), после чего допишет в накопленные события
+отсутствующие общие параметры. Ожидание одноразовое и ограничено
+`REQUIRED_COMMON_PARAMETERS_TIMEOUT` (5 секунд): если какой-то ключ так и не был выставлен,
+в лог пишется предупреждение, события уходят как есть, а дальше обрабатываются без задержки.
+
+Приоритеты не меняются: явные параметры события и общие параметры, уже известные на момент
+`logEvent`, остаются как были — дописываются только недостающие ключи.
 
 #### Кастомные HTTP-заголовки (например, антибот-токен)
 
@@ -181,6 +273,24 @@ analytics.isCollectionEnabled = false // или true
 analytics.finish()
 ```
 
+### Диагностика потерь событий
+
+SDK сообщает о потерях и сбоях через обычные методы `WildAnalyticsLogger`, новых методов реализовывать не нужно.
+Если установлен кастомный логгер, записи придут в него, иначе в Logcat с тегом `WildAnalytics`.
+
+- `ERROR` приходит в `logError(e, details)`: `e.message` начинается с маркера (`[wba_queue_eviction] …`),
+  атрибуты лежат в `details`.
+- `WARN` приходит в `logWarn(message)` одной строкой: `[wba_send_failed] … code=500, attempts=10, …`.
+- Во всех записях есть атрибут `sdk_version`. Если `isEnabled` у логгера `false`, диагностика не передаётся.
+
+| Маркер | Уровень | Когда | Атрибуты |
+|---|---|---|---|
+| `wba_queue_eviction` | ERROR | из БД удалены события сверх `maxEventsInCache`; на каждую очистку | `op_id`, `time`, `limit`, `size_before`, `size_after`, `removed`, `removed_important`, `groups` (`name:importance=count;…`, топ-20), `other_groups`, `other_count` |
+| `wba_insert_failed` | ERROR | событие не удалось сохранить в БД, оно потеряно; одна запись на тип исключения за процесс | `name`, `exception` |
+| `wba_send_failed` | WARN | батч не отправлен после всех попыток, события остаются в БД | `code` (только для HTTP-ответа), `exception`, `attempts`, `events`, `batch_number`, `batch_size`, `host`, `endpoint` (`primary`/`fallback`), `network`, `validated` |
+| `wba_endpoint_fallback` | ERROR | отправка переключена на резервный домен; один раз за процесс для хоста, в момент переключения | `primary_host`, `fallback_host`, `code`, `exception`, `attempt`, `network`, `validated`, `batch_number` |
+| `wba_send_loop_restarted` | WARN | цикл отправки упал и будет перезапущен с задержкой | `exception`, `attempt` |
+
 ### Описание параметров
 
 - **name** — имя события (от 1 до 40 символов).
@@ -196,6 +306,84 @@ analytics.finish()
   (см. пример выше)
 - Клик по баннеру:  
   `analytics.logEvent("Banner_T", mapOf("banner_id" to "789", "location" to "main"))`
+
+### События атрибуции переходов
+
+> [!IMPORTANT]
+> События ниже **обязательны для корректной атрибуции** переходов пользователя в приложение.
+
+#### 1. Открытие по ссылке / диплинку (`dynamic_link_app_open`)
+
+Отправляется при открытии приложения по динамической ссылке или перехваченному диплинку.
+
+| Параметр | Тип | Описание |
+| --- | --- | --- |
+| `link` | String | URL, по которому было открыто приложение |
+| `referrerURL` | String | Referrer ссылки, по которой было открыто приложение (опционально) |
+
+Пример отправки:
+```kotlin
+analytics.logEvent(
+    "dynamic_link_app_open",
+    mapOf(
+        "link" to "https://wb.ru/product/12345",
+        "referrerURL" to "https://yandex.ru"
+    )
+)
+
+// Или через функцию-расширение:
+analytics.logDeepLink(uri = intent.data, referrerUrl = referrerUri?.toString())
+```
+
+#### 2. Открытие из push-уведомления (`dynamic_push_app_open`)
+
+Отправляется при открытии приложения по клику на push-уведомление.
+
+| Параметр | Тип | Описание |
+| --- | --- | --- |
+| `link` | String | Путь URL пуша (deeplink / URL) |
+| `push` | String | Текст или заголовок push-уведомления |
+
+Пример отправки:
+```kotlin
+analytics.logEvent(
+    "dynamic_push_app_open",
+    mapOf(
+        "link" to "https://wb.ru/promo/sale",
+        "push" to "Скидки до 70% на всё!"
+    )
+)
+
+// Или через функцию-расширение:
+analytics.logPushOpen(link = pushUrl, push = pushText)
+```
+
+### Автоматические системные события
+
+> **enableAutomaticEvents** — включает отправку автоматических событий (по умолчанию `false`).  
+> Если хотите отправлять автоматические события — укажите `true` у этого флага.  
+> Если ваш продукт будет интегрироваться в другой продукт — оставьте положение флага неизменным (`false`), при изменении у интегрируемых продуктов сбор аналитики может работать нестабильно.  
+> В объекте `meta` каждого батча передаётся ключ `enable_automatic_events` со значением `true` или `false`.
+
+SDK автоматически собирает и отправляет базовые системные события жизненного цикла приложения для каждого инициализированного инстанса:
+
+#### 1. Первый запуск приложения (`first_open`)
+- **Триггер:** Отправляется автоматически один раз при самом первом запуске приложения на устройстве.
+- **Параметры:** без параметров (`{}`).
+
+#### 2. Запуск приложения (`application_start`)
+- **Триггер:** Отправляется автоматически при инициализации экземпляра аналитики.
+- **Параметры:**
+  | Параметр | Тип | Описание |
+  | --- | --- | --- |
+  | `start_location` | String | Локация старта: `"foreground"` (запуск с активным экраном) или `"background"` (фоновый старт, push-сервис и т.д.) |
+  | `cpu` | Double / Number | Максимальная тактовая частота процессора в GHz (например, `2.84`) |
+  | `ram` | Int / Number | Общий объём оперативной памяти устройства в GB (например, `8`) |
+  | `processor_name` | String | Модель процессора / SoC (например, `SM8450`, `gki`) |
+
+#### 3. Пульс активности (`heartbeat`)
+- **Триггер:** Отправляется через 30 секунд после перехода приложения на передний план (foreground) и далее каждые 30 секунд непрерывно, пока приложение активно. При уходе приложения в фон таймер сбрасывается и останавливается.
+- **Параметры:** без параметров (`{}`).
 
 ## Статический анализ (detekt)
 

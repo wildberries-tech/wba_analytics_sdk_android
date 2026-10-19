@@ -1,12 +1,51 @@
 # Wild Analytics Android Client
-[![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wild_analytics_sdk_android/blob/develop/README.md)
-[![version](https://img.shields.io/badge/version-1.0.48-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.48)
+[![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README.md)
+[![version](https://img.shields.io/badge/version-1.0.62-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.62)
 
 Android client library for Wildberries analytics.
 
 ## Adding the Library
 
-For now, download the aar [from here](library/releases/ru/wildberries/analytics2.public).
+You can integrate the library using the GitHub Maven repository or directly via an AAR file.
+
+### Option 1: Via Maven Repository (Recommended)
+
+Add the repository to `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "WildAnalytics"
+            url = uri("https://raw.githubusercontent.com/wildberries-tech/wba_analytics_sdk_android/develop/library/releases")
+        }
+    }
+}
+```
+
+Add the dependency to your module's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("ru.wildanalytics:pub:1.0.62")
+}
+```
+
+### Option 2: Direct AAR Integration
+
+Download the `.aar` file directly from the repository:
+- [Latest Release 1.0.62](library/releases/ru/wildanalytics/pub/1.0.62)
+- [Version Archive](library/releases/ru/wildanalytics/pub)
+
+Place the file into your `app/libs/` directory and configure your dependency:
+
+```kotlin
+dependencies {
+    implementation(files("libs/pub-1.0.62.aar"))
+}
+```
 
 > [!IMPORTANT]
 > If you are migrating from the old `WBAnalytics2` version, please refer to the [Migration Guide](./Migration_from_WBAnalytics2_to_WildAnalytics-en.md).
@@ -42,12 +81,26 @@ return WildAnalytics(
 )
 ```
 
-**Constructor parameters explanation:**
-
 - `apiUrlProvider` — function returning the URL for sending analytics (usually
-  `"https://analytics.wb.ru/m/batch"`).
+  `"https://wba.wb.ru/m/batch"`).
 - `apiKey` — API key for authentication in the analytics service.
+- `enableAutomaticEvents: Boolean` — enable (`true`) for automatic tracking of installations, application launches, and active time. If your product is a library for integration, keep `false`. Defaults to `false`.
 - `isCollectionEnabled` — flag that controls whether event processing is enabled by default (can be changed at runtime).
+- `requiredCommonParameters: Set<String>` — keys of common parameters without which events should not be sent (see [Required Common Parameters](#required-common-parameters)). Defaults to empty.
+- `fallbackApiUrl: String?` — fallback destination URL for events. Defaults to `null`.
+
+### Fallback Domain
+
+When `fallbackApiUrl` is configured, the SDK switches event routing to the fallback endpoint until process restart after 3 consecutive failures to deliver a batch while active internet connectivity is verified.
+
+```kotlin
+val analytics = WildAnalytics(
+    apiUrlProvider = { "https://a.wb.ru/m/batch" },
+    fallbackApiUrl = "https://afb.wb.ru/m/batch",
+    apiKey = "YOUR_API_KEY",
+    isCollectionEnabled = true,
+)
+```
 
 ## Analytics Configuration (WildAnalyticsConfig)
 
@@ -119,7 +172,31 @@ analytics.logEvent(
 ```kotlin
 analytics.setCommonParameter("client_id", "123")
 analytics.setCommonParameters(mapOf("user_id" to "456", "app_version" to "1.2.3"))
+
+// typed values are serialized into event JSON as number/boolean rather than string
+analytics.setCommonParameter("vpn_status", 1)
+analytics.setCommonParameter("is_authorized", true)
+
+// remove a parameter of any type
+analytics.setCommonParameter("vpn_status", null)
 ```
+
+#### Required Common Parameters
+
+Common parameters are merged into an event at the moment of `logEvent`. If the application sets them asynchronously (for example, `client_id` is read from a database), the earliest events — pushes received when the application is closed, automatic SDK events — could be sent without them. To prevent this, list those keys when initializing the instance:
+
+```kotlin
+val analytics = WildAnalytics(
+    context = context,
+    apiKey = "YOUR_API_KEY",
+    enableAutomaticEvents = true,
+    requiredCommonParameters = setOf("client_id", "lang", "country"),
+)
+```
+
+The SDK will hold event processing until each of the keys has been set at least once via `setCommonParameter` / `setCommonParameters` (setting a `null` value also counts as setting — this is how anonymous users can be marked), after which missing common parameters will be added to the accumulated events. The wait is one-time and bounded by `REQUIRED_COMMON_PARAMETERS_TIMEOUT` (5 seconds): if a key is not set before timeout, a warning is logged, events proceed as-is, and subsequent events are processed without delay.
+
+Priorities do not change: explicit event parameters and common parameters already known at `logEvent` time take precedence — only missing keys are appended.
 
 #### Custom HTTP Headers (e.g., Anti-bot Token)
 
@@ -186,6 +263,84 @@ analytics.finish()
   (see example above)
 - Banner click:  
   `analytics.logEvent("Banner_T", mapOf("banner_id" to "789", "location" to "main"))`
+
+### Transition Attribution Events
+
+> [!IMPORTANT]
+> The events below are **mandatory for correct user transition attribution** into the app.
+
+#### 1. Open via Dynamic Link / Deeplink (`dynamic_link_app_open`)
+
+Sent when the application is opened via a dynamic link or intercepted deep link.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `link` | String | URL used to open the application |
+| `referrerURL` | String | Referrer URL of the link that opened the app (optional) |
+
+Example:
+```kotlin
+analytics.logEvent(
+    "dynamic_link_app_open",
+    mapOf(
+        "link" to "https://wb.ru/product/12345",
+        "referrerURL" to "https://yandex.ru"
+    )
+)
+
+// Or via extension function:
+analytics.logDeepLink(uri = intent.data, referrerUrl = referrerUri?.toString())
+```
+
+#### 2. Open via Push Notification (`dynamic_push_app_open`)
+
+Sent when the application is opened by clicking a push notification.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `link` | String | Push URL path (deeplink / URL) |
+| `push` | String | Push notification text or title |
+
+Example:
+```kotlin
+analytics.logEvent(
+    "dynamic_push_app_open",
+    mapOf(
+        "link" to "https://wb.ru/promo/sale",
+        "push" to "Discounts up to 70% on everything!"
+    )
+)
+
+// Or via extension function:
+analytics.logPushOpen(link = pushUrl, push = pushText)
+```
+
+### Automatic System Events
+
+> **enableAutomaticEvents** — enables sending automatic events (default is `false`).  
+> If you want to send automatic events, set this flag to `true`.  
+> If your product will be integrated into another product, keep it `false` to avoid interference.  
+> In the `meta` object of each batch, the `enable_automatic_events` key is sent with `true` or `false`.
+
+The SDK automatically collects and sends core system lifecycle events for each initialized analytics instance:
+
+#### 1. First App Launch (`first_open`)
+- **Trigger:** Sent automatically once upon the very first launch of the application on the device.
+- **Parameters:** No parameters (`{}`).
+
+#### 2. Application Start (`application_start`)
+- **Trigger:** Sent automatically when an analytics instance is initialized.
+- **Parameters:**
+  | Parameter | Type | Description |
+  | --- | --- | --- |
+  | `start_location` | String | Start location: `"foreground"` (started with active screen) or `"background"` (background start, push service, etc.) |
+  | `cpu` | Double / Number | Maximum CPU clock frequency in GHz (e.g., `2.84`) |
+  | `ram` | Int / Number | Total device RAM in GB (e.g., `8`) |
+  | `processor_name` | String | Processor / SoC model (e.g., `SM8450`, `gki`) |
+
+#### 3. Heartbeat (`heartbeat`)
+- **Trigger:** Sent 30 seconds after the app enters the foreground, and every 30 seconds continuously while the app is active. The timer resets and stops when the app goes into the background.
+- **Parameters:** No parameters (`{}`).
 
 ## FAQ
 

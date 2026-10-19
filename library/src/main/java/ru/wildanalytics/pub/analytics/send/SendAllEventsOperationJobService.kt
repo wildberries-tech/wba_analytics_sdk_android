@@ -27,8 +27,10 @@ internal class SendAllEventsOperationJobService : JobService() {
                 throw exception
             } catch (error: Error) {
                 log.logError(error, emptyMap())
+                jobFinished(params, true)
             } catch (exception: Exception) {
                 log.logException(exception)
+                jobFinished(params, true)
             }
         }
         return true

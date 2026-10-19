@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -29,7 +28,12 @@ internal class SessionProviderTest : BehaviorSpec({
         val idGenerator = object : IdGenerator {
             override fun generateId(): UUID = uuids.removeAt(0)
         }
-        val flow = MutableSharedFlow<ProcessForegroundData>()
+        val flow = kotlinx.coroutines.flow.MutableStateFlow(
+            ProcessForegroundData(
+                isInForeground = false,
+                isFromForeground = false
+            )
+        )
         val provider = mockk<ProcessForegroundDataProvider>()
         every { provider.processForegroundData } returns flow
 

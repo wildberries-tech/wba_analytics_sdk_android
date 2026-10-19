@@ -79,6 +79,20 @@ public interface WildAnalytics {
     public fun setCommonParameter(@Size(min = 1, max = 40) key: String, value: String?)
 
     /**
+     * Устанавливает параметр типа [Boolean], который будет добавлен к каждому событию при создании события.
+     *
+     * Функция thread-safe.
+     */
+    public fun setCommonParameter(@Size(min = 1, max = 40) key: String, value: Boolean)
+
+    /**
+     * Устанавливает параметр числового типа ([Number]), который будет добавлен к каждому событию при создании события.
+     *
+     * Функция thread-safe.
+     */
+    public fun setCommonParameter(@Size(min = 1, max = 40) key: String, value: Number)
+
+    /**
      * Устанавливает несколько общих параметров.
      *
      * Функция thread-safe.
@@ -130,3 +144,10 @@ public interface WildAnalytics {
      */
     public fun addEventEnricher(enricher: EventEnricher)
 }
+
+/**
+ * Максимальный размер extras события в байтах. Строка БД целиком должна помещаться в CursorWindow
+ * (2 МиБ), иначе её невозможно прочитать. Запас оставлен под остальные колонки строки и служебные
+ * данные окна.
+ */
+internal const val MAX_EVENT_EXTRAS_SIZE_IN_BYTES = 2 * 1024 * 1024L - 16 * 1024L
