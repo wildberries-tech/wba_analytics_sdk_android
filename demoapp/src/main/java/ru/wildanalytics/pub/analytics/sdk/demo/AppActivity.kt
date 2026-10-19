@@ -8,24 +8,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import ru.wildanalytics.pub.analytics.sdk.demo.analytics.ui.AnalyticsScreen
-import ru.wildanalytics.pub.analytics.sdk.demo.splitter.SplitterScreen
 
 class AppActivity : ComponentActivity() {
 
@@ -33,7 +23,6 @@ class AppActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { _ -> }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -57,40 +46,13 @@ class AppActivity : ComponentActivity() {
     }
 
     @Composable
-    @OptIn(ExperimentalMaterial3Api::class)
     private fun Content() {
-        val (selectedTab, selectTab) = remember { mutableIntStateOf(0) }
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 64.dp)
-                    .weight(1f)
-            ) {
-                when (selectedTab) {
-                    0 -> AnalyticsScreen()
-                    1 -> SplitterScreen()
-                }
-            }
-
-            PrimaryTabRow(selectedTabIndex = selectedTab) {
-                Tab(
-                    selected = selectedTab == 0,
-                    onClick = { selectTab(0) },
-                    text = {
-                        Text(
-                            text = stringResource(R.string.tab_analytics),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                )
-                Tab(
-                    selected = selectedTab == 1,
-                    onClick = { selectTab(1) },
-                    text = { Text(text = stringResource(R.string.tab_splitter)) }
-                )
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 16.dp)
+        ) {
+            AnalyticsScreen()
         }
     }
 }
