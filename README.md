@@ -1,12 +1,51 @@
 # Wild Analytics Android Client
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wild_analytics_sdk_android/blob/develop/README-en.md)
-[![version](https://img.shields.io/badge/version-1.0.48-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.48)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README-en.md)
+[![version](https://img.shields.io/badge/version-1.0.62-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.62)
 
 Клиентская андроид библиотека для Wildberries аналитики.
 
 ## Подключение библиотеки
 
-Пока [отсюда](library/releases/ru/wildberries/analytics2.public) доставать aar.
+Библиотеку можно подключить через Maven-репозиторий в GitHub или напрямую файлом AAR.
+
+### Способ 1: Подключение через Maven (Рекомендуемый)
+
+Добавьте репозиторий в `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "WildAnalytics"
+            url = uri("https://raw.githubusercontent.com/wildberries-tech/wba_analytics_sdk_android/develop/library/releases")
+        }
+    }
+}
+```
+
+В `build.gradle.kts` вашего модуля добавьте зависимость:
+
+```kotlin
+dependencies {
+    implementation("ru.wildanalytics:pub:1.0.62")
+}
+```
+
+### Способ 2: Прямое подключение AAR
+
+Вы можете скачать файл `.aar` напрямую из репозитория:
+- [Актуальный релиз 1.0.62](library/releases/ru/wildanalytics/pub/1.0.62)
+- [Архив версий](library/releases/ru/wildanalytics/pub)
+
+Поместите файл в папку `app/libs/` и добавьте зависимость:
+
+```kotlin
+dependencies {
+    implementation(files("libs/pub-1.0.62.aar"))
+}
+```
 
 > [!IMPORTANT]
 > Если вы переходите со старой версии `WBAnalytics2`, обязательно ознакомьтесь с [Руководством по миграции](./Migration_from_WBAnalytics2_to_WildAnalytics.md).

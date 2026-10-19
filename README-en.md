@@ -1,12 +1,51 @@
 # Wild Analytics Android Client
-[![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wild_analytics_sdk_android/blob/develop/README.md)
-[![version](https://img.shields.io/badge/version-1.0.48-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.48)
+[![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README.md)
+[![version](https://img.shields.io/badge/version-1.0.62-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.62)
 
 Android client library for Wildberries analytics.
 
 ## Adding the Library
 
-For now, download the aar [from here](library/releases/ru/wildberries/analytics2.public).
+You can integrate the library using the GitHub Maven repository or directly via an AAR file.
+
+### Option 1: Via Maven Repository (Recommended)
+
+Add the repository to `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "WildAnalytics"
+            url = uri("https://raw.githubusercontent.com/wildberries-tech/wba_analytics_sdk_android/develop/library/releases")
+        }
+    }
+}
+```
+
+Add the dependency to your module's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("ru.wildanalytics:pub:1.0.62")
+}
+```
+
+### Option 2: Direct AAR Integration
+
+Download the `.aar` file directly from the repository:
+- [Latest Release 1.0.62](library/releases/ru/wildanalytics/pub/1.0.62)
+- [Version Archive](library/releases/ru/wildanalytics/pub)
+
+Place the file into your `app/libs/` directory and configure your dependency:
+
+```kotlin
+dependencies {
+    implementation(files("libs/pub-1.0.62.aar"))
+}
+```
 
 > [!IMPORTANT]
 > If you are migrating from the old `WBAnalytics2` version, please refer to the [Migration Guide](./Migration_from_WBAnalytics2_to_WildAnalytics-en.md).

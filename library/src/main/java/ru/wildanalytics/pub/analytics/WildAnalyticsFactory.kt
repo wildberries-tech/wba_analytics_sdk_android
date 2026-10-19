@@ -164,7 +164,6 @@ internal val osBuild: String by lazy {
 }
 
 // Ожидаемый бэком формат версии ОС -- "00.00.00". Меньше составляющих распарсится (в недостающие запишется ноль), больше -- ошибка.
-// https://youtrack.wildberries.ru/issue/ANDR-31076/WildAnalytics-SDK-Android-versiya-OS-v-batche
 private fun String.parseOsBuild(): String? = split(".")
     .mapNotNull { part -> part.takeWhile { it.isDigit() }.takeLast(2).takeIf { it.isNotEmpty() } }
     .take(3)
