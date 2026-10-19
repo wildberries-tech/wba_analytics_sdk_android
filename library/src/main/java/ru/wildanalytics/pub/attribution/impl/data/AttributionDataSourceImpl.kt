@@ -129,6 +129,9 @@ internal class AttributionDataSourceImpl(
         .writeTimeout(timeouts.writeTimeout.toJavaDuration())
         // попытка избавиться от отвалившихся сокетов, вызывающих java.net.SocketTimeoutException при реконнекте
         // https://github.com/square/okhttp/issues/3146
-        .connectionPool(ConnectionPool(0, 1, TimeUnit.NANOSECONDS))
+        // Без переиспользования соединений: их закрытие обеспечивает maxIdleConnections = 0.
+        // keepAliveDuration — ещё и интервал перепроверки пула, пока соединение занято:
+        // при 1 нс очистка пула крутится в холостом цикле на всё время запроса.
+        .connectionPool(ConnectionPool(0, 5, TimeUnit.SECONDS))
         .build()
 }
