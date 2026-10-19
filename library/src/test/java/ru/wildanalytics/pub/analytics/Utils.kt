@@ -63,3 +63,30 @@ internal fun testMetaInfo() = MetaInfo(
     timezone = "Europe/Moscow",
     enableAutomaticEvents = false,
 )
+
+internal fun testNetworkSnapshotProvider(
+    network: ru.wildanalytics.pub.analytics.network.NetworkSnapshot =
+        ru.wildanalytics.pub.analytics.network.NetworkSnapshot(transports = "wifi", validated = true),
+) = ru.wildanalytics.pub.analytics.network.NetworkSnapshotProvider { network }
+
+internal fun testEndpointRouter(
+    endpointFallback: ru.wildanalytics.pub.analytics.send.fallback.EndpointFallback =
+        ru.wildanalytics.pub.analytics.send.fallback.EndpointFallback(),
+    networkSnapshotProvider: ru.wildanalytics.pub.analytics.network.NetworkSnapshotProvider =
+        testNetworkSnapshotProvider(),
+    diagnostics: ru.wildanalytics.pub.analytics.diagnostics.DiagnosticsReporter =
+        ru.wildanalytics.pub.analytics.diagnostics.DiagnosticsReporter(NoOpWildAnalyticsLogger, sdkVersion = "test"),
+) = ru.wildanalytics.pub.analytics.send.fallback.EndpointRouter(
+    endpointFallback,
+    networkSnapshotProvider,
+    ru.wildanalytics.pub.analytics.diagnostics.EndpointFallbackReporter(diagnostics),
+    NoOpWildAnalyticsLogger,
+)
+
+internal fun testBatch(apiUrl: ApiUrl, apiKey: ApiKey, batchNumber: Long = 1L) = ru.wildanalytics.pub.analytics.batch.BatchData(
+    contentLength = 1,
+    apiData = ru.wildanalytics.pub.analytics.domain.ApiData(apiUrl = apiUrl, apiKey = apiKey),
+    model = ru.wildanalytics.pub.analytics.api.BatchModel(meta = testMeta(batchNumber), events = emptyList()),
+    eventIds = listOf(1),
+    heaviestEvent = "event" to 1L,
+)

@@ -63,7 +63,6 @@ internal class ImmediateSendStrategy(
     }
 
     private suspend fun sendEventsProcess(config: WildAnalyticsConfig) {
-        eventsRepository.deleteOldestEventsThatExceed(config.maxEventsInCache)
         var failedAttempts = 0
         while (currentCoroutineContext().isActive) {
             try {

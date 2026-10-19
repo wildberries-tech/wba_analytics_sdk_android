@@ -3,18 +3,23 @@ package ru.wildanalytics.pub.analytics.send
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.InternalSerializationApi
 import ru.wildanalytics.pub.analytics.WildAnalyticsLogger
 import ru.wildanalytics.pub.analytics.api.BatchModel
 import ru.wildanalytics.pub.analytics.batch.BatchData
 import ru.wildanalytics.pub.analytics.batch.BatchRepository
 import ru.wildanalytics.pub.analytics.config.ConfigRepository
 import ru.wildanalytics.pub.analytics.config.WildAnalyticsConfig
+import ru.wildanalytics.pub.analytics.diagnostics.DiagnosticAttributes
+import ru.wildanalytics.pub.analytics.diagnostics.DiagnosticMarker
+import ru.wildanalytics.pub.analytics.diagnostics.DiagnosticsReporter
+import ru.wildanalytics.pub.analytics.diagnostics.QueueEvictionReporter
+import ru.wildanalytics.pub.analytics.diagnostics.toAttributeValue
 import ru.wildanalytics.pub.analytics.domain.ApiData
 import ru.wildanalytics.pub.analytics.event.EventsRepository
 import ru.wildanalytics.pub.analytics.logDebug
 import ru.wildanalytics.pub.analytics.logError
-import ru.wildanalytics.pub.analytics.logException
+import ru.wildanalytics.pub.analytics.send.fallback.EndpointRoute
+import ru.wildanalytics.pub.analytics.send.fallback.EndpointRouter
 import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepository
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
@@ -30,6 +35,9 @@ internal class SendAllAnalyticEventsOperation(
     private val configRepository: ConfigRepository,
     private val log: WildAnalyticsLogger,
     private val customHeadersRepository: CustomHeadersRepository,
+    private val queueEvictionReporter: QueueEvictionReporter,
+    private val diagnostics: DiagnosticsReporter,
+    private val endpointRouter: EndpointRouter,
 ) {
 
     private val sendBatchLock = Mutex()
@@ -56,7 +64,6 @@ internal class SendAllAnalyticEventsOperation(
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     private suspend fun sendBatch(config: WildAnalyticsConfig, apiData: ApiData) {
         sendBatchLock.withLock {
             log.logDebug { "Reading batch with batching strategy: ${config.batching}" }
@@ -65,21 +72,22 @@ internal class SendAllAnalyticEventsOperation(
                 val batchNumber = batch.model.meta.batchNumber
                 log.logDebug { "Processing batch for API URL: ${apiData.apiUrl} events count ${batch.eventIds.size}, content length ${batch.contentLength}" }
                 val eventIds = batch.eventIds
-                val sendResult = sendBatch(batch, config)
+                val route = endpointRouter.routeFor(batch)
+                val sendResult = sendBatch(batch, config, route)
                 if (log.isEnabled && batch.model.events.isNotEmpty()) {
                     val eventNumber = batch.model.events.first().eventNumber
                     log.logDebug("Sending ${eventIds.size} events ($eventNumber - ${eventNumber + eventIds.lastIndex.toULong()} event_num) with $batchNumber batch_number, ${batch.contentLength} byte size")
                 }
-                when {
+                when (sendResult) {
                     // При успешной отправке обновляем данные по отправленным событиям и удаляем элементы.
-                    sendResult == SendResult.Success -> {
+                    SendResult.Success -> {
                         log.logDebug { "Successfully sent batch $batchNumber" }
                         batchRepository.batchSent(eventIds)
                         log.logDebug { "Apply changes to database after sending, delete ${eventIds.size} events" }
                     }
 
                     // Если произошла критическая ошибка - удаляем элементы.
-                    sendResult == SendResult.CriticalFail -> {
+                    SendResult.CriticalFail -> {
                         log.logError {
                             error(Error("Critical failure in batch $batchNumber"))
                             detail("batchNumber", batchNumber.toString())
@@ -88,16 +96,34 @@ internal class SendAllAnalyticEventsOperation(
                         }
                         batchRepository.dropBatch(eventIds)
                     }
+
+                    is SendResult.Fail -> diagnostics.report(
+                        marker = DiagnosticMarker.SEND_FAILED,
+                        message = "Batch was not sent, events are kept for the next attempt",
+                        attributes = sendFailureAttributes(sendResult.cause, sendResult.attempts, batch) + route.failureAttributes(),
+                        throwable = sendResult.cause,
+                    )
                 }
-                eventsRepository.deleteOldestEventsThatExceed(config.maxEventsInCache)
+                eventsRepository.deleteOldestEventsThatExceed(config.maxEventsInCache)?.let(queueEvictionReporter::report)
             }
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
+    private fun sendFailureAttributes(cause: Exception, attempts: Int, batch: BatchData): Map<String, String> =
+        buildMap {
+            (cause as? HttpStatusException)?.let { put(DiagnosticAttributes.CODE, it.code.toString()) }
+            put(DiagnosticAttributes.EXCEPTION, cause.javaClass.name)
+            cause.message?.let { put(DiagnosticAttributes.ERROR, it.toAttributeValue()) }
+            put(DiagnosticAttributes.ATTEMPTS, attempts.toString())
+            put(DiagnosticAttributes.EVENTS, batch.eventIds.size.toString())
+            put(DiagnosticAttributes.BATCH_NUMBER, batch.model.meta.batchNumber.toString())
+            put(DiagnosticAttributes.BATCH_SIZE, batch.contentLength.toString())
+        }
+
     private suspend fun sendBatch(
         batchData: BatchData,
-        config: WildAnalyticsConfig
+        config: WildAnalyticsConfig,
+        route: EndpointRoute,
     ): SendResult {
         val batch: BatchModel = batchData.model
         val apiData = batchData.apiData
@@ -105,12 +131,12 @@ internal class SendAllAnalyticEventsOperation(
         var attempt = 1
         val retryPolicy = config.retryPolicy
         val transport = config.transport
-        log.logDebug { "Starting to send batch $batchNumber to ${apiData.apiUrl}" }
+        log.logDebug { "Starting to send batch $batchNumber to ${route.url}" }
         while (true) {
             try {
                 log.logDebug { "Attempt $attempt to send batch $batchNumber" }
                 val responseCode = transport.send(
-                    url = apiData.apiUrl,
+                    url = route.url,
                     body = batch,
                     strategy = BatchModel.serializer(),
                     headers = customHeadersRepository.current().newBuilder()
@@ -118,7 +144,7 @@ internal class SendAllAnalyticEventsOperation(
                         .build(),
                 )
                 if (responseCode != 200) {
-                    throw IOException("Server error $responseCode")
+                    throw HttpStatusException(responseCode)
                 }
                 return SendResult.Success
             } catch (e: CancellationException) {
@@ -136,25 +162,31 @@ internal class SendAllAnalyticEventsOperation(
                 }
                 return SendResult.CriticalFail
             } catch (exception: Exception) {
-                log.logException { exception }
-                if (retryPolicy.shouldRetry(attempt, exception)) {
+                log.logDebug { "Attempt $attempt to send batch $batchNumber failed: $exception" }
+                if (route.onFailure(exception, attempt)) {
+                    attempt++
+                } else if (retryPolicy.shouldRetry(attempt, exception)) {
                     val delay = retryPolicy.nextDelay(attempt)
                     log.logDebug { "Waiting $delay before next attempt for batch $batchNumber" }
                     delay(delay)
                     attempt++
                 } else {
                     log.logDebug { "Sending failed on $attempt attempt" }
-                    return SendResult.Fail
+                    return SendResult.Fail(exception, attempt)
                 }
             }
         }
     }
 
-    private enum class SendResult {
-        Success, Fail, CriticalFail;
+    private sealed interface SendResult {
+        data object Success : SendResult
+        data object CriticalFail : SendResult
+        class Fail(val cause: Exception, val attempts: Int) : SendResult
     }
 
     companion object {
         const val NAME = "send_all_analytics_events_operation"
     }
 }
+
+internal class HttpStatusException(val code: Int) : IOException("Server error $code")

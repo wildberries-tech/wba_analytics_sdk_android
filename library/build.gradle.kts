@@ -41,6 +41,9 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.ext.junit)
+    testRuntimeOnly(libs.junit.vintage.engine)
 }
 
 val schemaDir = File(projectDir, "schemas")
@@ -70,6 +73,7 @@ android {
     testOptions {
         unitTests.all {
             it.useJUnitPlatform()
+            it.systemProperty("net.bytebuddy.experimental", "true")
         }
     }
 

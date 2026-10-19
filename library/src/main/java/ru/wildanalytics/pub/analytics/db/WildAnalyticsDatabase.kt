@@ -108,8 +108,17 @@ internal interface AnalyticsEventsDao {
     @Insert
     suspend fun add(items: List<EventEntity>)
 
-    @Query("DELETE FROM EventEntity WHERE id IN (SELECT id FROM EventEntity LIMIT :count)")
+    // Без ORDER BY SQLite выбирает строки по индексу (importance DESC) и удаляет важные события первыми.
+    // Удаляем сначала самые старые обычные, важные — в последнюю очередь.
+    @Query("DELETE FROM EventEntity WHERE id IN (SELECT id FROM EventEntity ORDER BY importance ASC, id ASC LIMIT :count)")
     suspend fun deleteEvents(count: Int): Int
+
+    @Query(
+        "SELECT name, importance, COUNT(*) AS count FROM EventEntity " +
+            "WHERE id IN (SELECT id FROM EventEntity ORDER BY importance ASC, id ASC LIMIT :count) " +
+            "GROUP BY name, importance"
+    )
+    suspend fun getEvictionCandidates(count: Int): List<EvictedEventsGroup>
 
     @Query("SELECT id, name, length(CAST(extras AS BLOB)) AS size FROM EventEntity WHERE length(CAST(extras AS BLOB)) > :maxSizeInBytes")
     suspend fun getOversizedEvents(maxSizeInBytes: Long): List<OversizedEvent>
@@ -136,6 +145,12 @@ internal interface SentInfoDao {
     @Upsert
     suspend fun upsert(info: SentInfoEntity)
 }
+
+internal data class EvictedEventsGroup(
+    val name: String,
+    val importance: Int,
+    val count: Int,
+)
 
 internal data class OversizedEvent(
     val id: Int,

@@ -21,6 +21,11 @@ import ru.wildanalytics.pub.analytics.event.EventsRepository
 import ru.wildanalytics.pub.analytics.session.SessionProvider
 import ru.wildanalytics.pub.analytics.transport.CustomHeadersRepository
 import ru.wildanalytics.pub.analytics.util.ContentLengthCountingStream
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import ru.wildanalytics.pub.analytics.diagnostics.DiagnosticAttributes
+import ru.wildanalytics.pub.analytics.diagnostics.DiagnosticMarker
+import ru.wildanalytics.pub.analytics.diagnostics.DiagnosticsReporter
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.concurrent.atomic.AtomicReference
@@ -40,12 +45,14 @@ internal class WildAnalyticsImpl(
     private val enricherRegistry: EventEnricherRegistry,
     private val automaticEventsStrategy: AutomaticEventsStrategy,
     private val commonParametersGate: CommonParametersGate,
+    private val diagnostics: DiagnosticsReporter = DiagnosticsReporter(log, sdkVersion = "unknown"),
 ) : WildAnalytics {
 
     private val myScope = coroutineScopeFactory.create(javaClass.simpleName)
     private val channel = Channel<EventEntity>(capacity = Channel.UNLIMITED)
     private val commonParameters = AtomicReference(persistentHashMapOf<String, JsonElement>())
     private val reportedOversizedEvents = mutableSetOf<String>()
+    private val reportedInsertFailures = java.util.concurrent.ConcurrentHashMap.newKeySet<Class<*>>()
 
     init {
         channel.consumeAsFlow()
@@ -60,9 +67,13 @@ internal class WildAnalyticsImpl(
                     } else {
                         eventsRepository.add(it.copy(extras = enriched))
                     }
-                } catch (_: Exception) {
+                } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                    currentCoroutineContext().ensureActive()
+                    reportInsertFailed(it.name, e)
+                } catch (e: Exception) {
                     // Защита от недоступности БД.
                     // Без БД просто не будем собирать события аналитики.
+                    reportInsertFailed(it.name, e)
                 }
             }
             .launchIn(myScope)
@@ -220,6 +231,19 @@ internal class WildAnalyticsImpl(
 
     override fun setCustomHeaders(headers: Headers) {
         customHeadersRepository.setAll(headers)
+    }
+
+    private fun reportInsertFailed(name: String, e: Exception) {
+        if (!reportedInsertFailures.add(e.javaClass)) return
+        diagnostics.report(
+            marker = ru.wildanalytics.pub.analytics.diagnostics.DiagnosticMarker.INSERT_FAILED,
+            message = "Event dropped: failed to store",
+            attributes = mapOf(
+                ru.wildanalytics.pub.analytics.diagnostics.DiagnosticAttributes.EVENT_NAME to name,
+                ru.wildanalytics.pub.analytics.diagnostics.DiagnosticAttributes.EXCEPTION to e.javaClass.name,
+            ),
+            throwable = e,
+        )
     }
 }
 

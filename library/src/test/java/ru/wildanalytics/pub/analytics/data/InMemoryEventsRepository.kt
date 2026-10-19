@@ -60,18 +60,32 @@ internal class InMemoryEventsRepository : EventsRepository {
         }
     }
 
-    override suspend fun deleteOldestEventsThatExceed(allowedEventsInCacheCount: Int) =
-        updateEvents {
-            val size = it.size
-            if (size <= allowedEventsInCacheCount) {
-                it
-            } else {
-                it.entries
-                    .toList()
-                    .takeLast(allowedEventsInCacheCount)
-                    .associate { it.key to it.value }
-            }
-        }
+    override suspend fun deleteOldestEventsThatExceed(
+        allowedEventsInCacheCount: Int,
+    ): ru.wildanalytics.pub.analytics.event.EvictionResult? {
+        val events = eventsState.value.values
+        val exceededCount = events.size - allowedEventsInCacheCount
+        if (exceededCount <= 0) return null
+        val evicted = events
+            .sortedWith(compareBy<EventEntity> { it.importance }.thenBy { it.id })
+            .take(exceededCount)
+        delete(evicted.map { it.id })
+        return ru.wildanalytics.pub.analytics.event.EvictionResult(
+            limit = allowedEventsInCacheCount,
+            sizeBefore = events.size,
+            removed = evicted.size,
+            groups = evicted
+                .groupingBy { it.name to it.importance }
+                .eachCount()
+                .map { (key, count) ->
+                    ru.wildanalytics.pub.analytics.db.EvictedEventsGroup(
+                        name = key.first,
+                        importance = key.second,
+                        count = count,
+                    )
+                },
+        )
+    }
 
     override suspend fun deleteOversizedEvents(maxSizeInBytes: Long): List<OversizedEvent> {
         val oversized = eventsState.value.values

@@ -51,10 +51,14 @@ public fun WildAnalytics(
     isCollectionEnabled: Boolean = true,
     attributionStrategy: AttributionStrategy = AttributionStrategy.NotCheckAttribution,
     requiredCommonParameters: Set<String> = emptySet(),
+    fallbackApiUrl: ApiUrl? = null,
 ): WildAnalytics {
     require(apiKey.isNotEmpty())
     require(requiredCommonParameters.all { it.length in 1..MAX_COMMON_PARAMETER_KEY_LENGTH })
     val wildAnalyticsLocator = WildAnalyticsServiceLocator.getInstance(context)
+    if (!wildAnalyticsLocator.get<ru.wildanalytics.pub.analytics.send.fallback.EndpointFallback>().register(apiKey, fallbackApiUrl)) {
+        wildAnalyticsLocator.get<WildAnalyticsLogger>().logWarn("fallbackApiUrl=$fallbackApiUrl is ignored, must be a valid https URL")
+    }
     val automaticEventsStrategy = if (enableAutomaticEvents) {
         AutomaticEventsStrategy.Track(
             apiKey = apiKey,
@@ -81,6 +85,7 @@ public fun WildAnalytics(
             timeout = REQUIRED_COMMON_PARAMETERS_TIMEOUT,
             log = wildAnalyticsLocator.get(),
         ),
+        diagnostics = wildAnalyticsLocator.get<ru.wildanalytics.pub.analytics.diagnostics.DiagnosticsReporter>(),
     )
     attributionStrategy.execute(
         context = wildAnalyticsLocator.get(),

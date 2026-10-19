@@ -20,7 +20,7 @@ internal interface EventsRepository {
 
     suspend fun getEventsSequence(apiData: ApiData, limit: Int): CloseableSequence<EventEntity>
 
-    suspend fun deleteOldestEventsThatExceed(allowedEventsInCacheCount: Int)
+    suspend fun deleteOldestEventsThatExceed(allowedEventsInCacheCount: Int): EvictionResult?
 
     /**
      * Удаляет события, у которых размер extras в байтах больше [maxSizeInBytes].

@@ -40,6 +40,14 @@ import ru.wildanalytics.pub.analytics.util.DynamicSystemClock
 import ru.wildanalytics.pub.analytics.util.IdGenerator
 import ru.wildanalytics.pub.analytics.util.ProcessForegroundDataProvider
 import ru.wildanalytics.pub.analytics.util.RandomIdGenerator
+import ru.wildanalytics.pub.analytics.diagnostics.DiagnosticsReporter
+import ru.wildanalytics.pub.analytics.diagnostics.EndpointFallbackReporter
+import ru.wildanalytics.pub.analytics.diagnostics.QueueEvictionReporter
+import ru.wildanalytics.pub.analytics.network.NetworkSnapshotProvider
+import ru.wildanalytics.pub.analytics.network.NetworkSnapshotProviderImpl
+import ru.wildanalytics.pub.analytics.send.RestartPolicy
+import ru.wildanalytics.pub.analytics.send.fallback.EndpointFallback
+import ru.wildanalytics.pub.analytics.send.fallback.EndpointRouter
 import java.time.Clock
 import kotlin.concurrent.Volatile
 
@@ -158,7 +166,6 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
         EventsRepositoryImpl(
             eventsDao = it.get(),
             db = it.get(),
-            log = it.get(),
         )
     }
     bind<BatchRepository> {
@@ -171,6 +178,12 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
         )
     }
 
+    bind<DiagnosticsReporter> {
+        DiagnosticsReporter(
+            log = it.get(),
+            sdkVersion = "1.0.62",
+        )
+    }
     bind {
         SendStrategyProvider(
             eventsRepository = it.get(),
@@ -187,6 +200,8 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
             configRepository = it.get(),
             coroutineScopeFactory = it.get(),
             sendStrategyProvider = it.get(),
+            diagnostics = it.get(),
+            restartPolicy = ru.wildanalytics.pub.analytics.send.RestartPolicy(),
         )
     }
     bind { NetworkAvailabilitySource(context = it.get()) }
@@ -198,6 +213,29 @@ private fun buildInstance(context: Context): WildAnalyticsServiceLocator = Build
             configRepository = it.get(),
             log = it.get(),
             customHeadersRepository = it.get(),
+            queueEvictionReporter = it.get(),
+            diagnostics = it.get(),
+            endpointRouter = it.get(),
+        )
+    }
+    bind { ru.wildanalytics.pub.analytics.send.fallback.EndpointFallback() }
+    bind<ru.wildanalytics.pub.analytics.network.NetworkSnapshotProvider> {
+        ru.wildanalytics.pub.analytics.network.NetworkSnapshotProviderImpl(context = it.get())
+    }
+    bind { ru.wildanalytics.pub.analytics.diagnostics.EndpointFallbackReporter(reporter = it.get()) }
+    bind {
+        ru.wildanalytics.pub.analytics.send.fallback.EndpointRouter(
+            endpointFallback = it.get(),
+            networkSnapshotProvider = it.get(),
+            reporter = it.get(),
+            log = it.get(),
+        )
+    }
+    bind {
+        ru.wildanalytics.pub.analytics.diagnostics.QueueEvictionReporter(
+            reporter = it.get(),
+            clock = it.get(),
+            idGenerator = it.get(),
         )
     }
 }

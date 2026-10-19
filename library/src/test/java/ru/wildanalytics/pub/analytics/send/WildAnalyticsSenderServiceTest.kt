@@ -41,6 +41,8 @@ internal class WildAnalyticsSenderServiceTest : BehaviorSpec() {
                     configRepository = configRepository,
                     coroutineScopeFactory = TestScopeFactory(parentScope = this),
                     sendStrategyProvider = sendStrategyProvider,
+                    diagnostics = mockk(relaxed = true),
+                    restartPolicy = RestartPolicy(),
                 )
                 testCoroutineScheduler.advanceTimeBy(15_000)
                 coroutineContext.cancelChildren()
