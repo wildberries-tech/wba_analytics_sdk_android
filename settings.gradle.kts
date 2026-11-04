@@ -3,7 +3,7 @@ pluginManagement {
     repositories {
         maven("https://nexus.wildberries.ru/repository/android-releases/") {
             content {
-                includeGroupByRegex("ru.wildanalytics.pub.*")
+                includeGroupByRegex("ru.wildberries.*")
                 includeGroupByRegex("convention.*")
             }
         }
@@ -17,9 +17,12 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven {
+            url = uri("$rootDir/library/releases")
+        }
         maven("https://nexus.wildberries.ru/repository/android-releases/") {
             content {
-                includeGroupByRegex("ru.wildanalytics.pub.*")
+                includeGroupByRegex("ru.wildberries.*")
                 includeGroupByRegex("convention.*")
             }
         }
@@ -31,6 +34,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "wildanalyticsandroid"
+rootProject.name = "wbanalytics2android"
 include("library")
 include("demoapp")
