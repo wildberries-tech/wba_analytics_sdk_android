@@ -1,6 +1,6 @@
 # WB Analytics 2 Android Client
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README-en.md)
-[![version](https://img.shields.io/badge/version-1.0.63-blue.svg)](./library/releases/ru/wildberries/pub/1.0.63)
+[![version](https://img.shields.io/badge/version-1.0.65-blue.svg)](./library/releases/ru/wildberries/pub/1.0.65)
 
 Клиентская андроид библиотека для Wildberries аналитики.
 
@@ -29,21 +29,21 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("ru.wildberries:pub:1.0.63")
+    implementation("ru.wildberries:pub:1.0.65")
 }
 ```
 
 ### Способ 2: Прямое подключение AAR
 
 Вы можете скачать файл `.aar` напрямую из репозитория:
-- [Актуальный релиз 1.0.63](library/releases/ru/wildberries/pub/1.0.63)
+- [Актуальный релиз 1.0.65](library/releases/ru/wildberries/pub/1.0.65)
 - [Архив версий](library/releases/ru/wildberries/pub)
 
 Поместите файл в папку `app/libs/` и добавьте зависимость:
 
 ```kotlin
 dependencies {
-    implementation(files("libs/pub-1.0.63.aar"))
+    implementation(files("libs/pub-1.0.65.aar"))
 }
 ```
 

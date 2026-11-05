@@ -15,6 +15,7 @@ import ru.wildberries.pub.analytics.event.EventsRepository
 import ru.wildberries.pub.analytics.logDebug
 import ru.wildberries.pub.analytics.logError
 import ru.wildberries.pub.analytics.network.NetworkAvailabilitySource
+import ru.wildberries.pub.analytics.domain.SendMode
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -67,7 +68,7 @@ internal class ImmediateSendStrategy(
         while (currentCoroutineContext().isActive) {
             try {
                 val apiData = eventsRepository.awaitFirstApiData()
-                sendOperation.execute(apiData, config)
+                sendOperation.execute(apiData, config, SendMode.IMMEDIATE)
                 failedAttempts = 0
                 val delay = config.delays.delayBetweenOperations
                 log.logDebug { "Events in db are over, await new events after $delay" }

@@ -1,6 +1,6 @@
 # WB Analytics 2 Android Client
 [![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README.md)
-[![version](https://img.shields.io/badge/version-1.0.63-blue.svg)](./library/releases/ru/wildberries/pub/1.0.63)
+[![version](https://img.shields.io/badge/version-1.0.65-blue.svg)](./library/releases/ru/wildberries/pub/1.0.65)
 
 Android client library for Wildberries analytics.
 
@@ -29,21 +29,21 @@ Add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("ru.wildberries:pub:1.0.63")
+    implementation("ru.wildberries:pub:1.0.65")
 }
 ```
 
 ### Option 2: Direct AAR Integration
 
 Download the `.aar` file directly from the repository:
-- [Latest Release 1.0.63](library/releases/ru/wildberries/pub/1.0.63)
+- [Latest Release 1.0.65](library/releases/ru/wildberries/pub/1.0.65)
 - [Version Archive](library/releases/ru/wildberries/pub)
 
 Place the file into your `app/libs/` directory and configure your dependency:
 
 ```kotlin
 dependencies {
-    implementation(files("libs/pub-1.0.63.aar"))
+    implementation(files("libs/pub-1.0.65.aar"))
 }
 ```
 

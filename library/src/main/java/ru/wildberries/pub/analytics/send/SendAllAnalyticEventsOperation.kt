@@ -15,6 +15,7 @@ import ru.wildberries.pub.analytics.diagnostics.DiagnosticsReporter
 import ru.wildberries.pub.analytics.diagnostics.QueueEvictionReporter
 import ru.wildberries.pub.analytics.diagnostics.toAttributeValue
 import ru.wildberries.pub.analytics.domain.ApiData
+import ru.wildberries.pub.analytics.domain.SendMode
 import ru.wildberries.pub.analytics.event.EventsRepository
 import ru.wildberries.pub.analytics.logDebug
 import ru.wildberries.pub.analytics.logError
@@ -48,26 +49,26 @@ internal class SendAllAnalyticEventsOperation(
             log.logDebug { "No events in db" }
             return
         }
-        execute(apiData, config)
+        execute(apiData, config, SendMode.SCHEDULED)
     }
 
-    tailrec suspend fun execute(apiData: ApiData, config: WBA2Config) {
-        sendBatch(config, apiData)
+    tailrec suspend fun execute(apiData: ApiData, config: WBA2Config, sendMode: SendMode) {
+        sendBatch(config, apiData, sendMode)
         val nextApiData = eventsRepository.getFirstEventApiDataOrNull()
         if (nextApiData != null) {
             val delay = config.delays.delayBetweenBatches
             log.logDebug { "Found next batch for API URL: ${apiData.apiUrl}, that will be processed after $delay" }
             delay(delay)
-            execute(nextApiData, config)
+            execute(nextApiData, config, sendMode)
         } else {
             log.logDebug { "No events in db" }
         }
     }
 
-    private suspend fun sendBatch(config: WBA2Config, apiData: ApiData) {
+    private suspend fun sendBatch(config: WBA2Config, apiData: ApiData, sendMode: SendMode) {
         sendBatchLock.withLock {
             log.logDebug { "Reading batch with batching strategy: ${config.batching}" }
-            val batch = batchRepository.getBatch(apiData, config.batching)
+            val batch = batchRepository.getBatch(apiData, config.batching, sendMode)
             if (batch != null) {
                 val batchNumber = batch.model.meta.batchNumber
                 log.logDebug { "Processing batch for API URL: ${apiData.apiUrl} events count ${batch.eventIds.size}, content length ${batch.contentLength}" }

@@ -1,6 +1,7 @@
 package ru.wildberries.pub.analytics.batch
 
 import ru.wildberries.pub.analytics.domain.ApiData
+import ru.wildberries.pub.analytics.domain.SendMode
 
 internal interface BatchRepository {
 
@@ -11,5 +12,5 @@ internal interface BatchRepository {
     suspend fun dropBatch(eventIds: List<Int>)
 
     /** Здесь мы получаем все необходимые данные для отправки батча или null, если нет событий для отправки*/
-    suspend fun getBatch(apiData: ApiData, config: BatchingConfig): BatchData?
+    suspend fun getBatch(apiData: ApiData, config: BatchingConfig, sendMode: SendMode): BatchData?
 }

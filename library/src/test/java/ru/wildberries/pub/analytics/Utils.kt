@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import ru.wildberries.pub.analytics.device.DeviceId
 import ru.wildberries.pub.analytics.domain.MetaInfo
 import ru.wildberries.pub.analytics.domain.NetworkType
+import ru.wildberries.pub.analytics.domain.SendMode
 import ru.wildberries.pub.analytics.network.NetworkSnapshot
 import ru.wildberries.pub.analytics.network.NetworkSnapshotProvider
 import ru.wildberries.pub.analytics.api.BatchModel
@@ -46,7 +47,7 @@ internal class TestScopeFactory(private val parentScope: CoroutineScope) : Corou
     }
 }
 
-internal fun testMeta(batchNumber: Long = 1L) = testMetaInfo().toServerModel(batchNumber)
+internal fun testMeta(batchNumber: Long = 1L) = testMetaInfo().toServerModel(batchNumber, SendMode.SCHEDULED)
 
 internal fun testMetaInfo() = MetaInfo(
     locale = "locale",

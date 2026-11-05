@@ -123,4 +123,11 @@ internal data class Meta(
 
     @SerialName("enable_automatic_events")
     val enableAutomaticEvents: Boolean,
+
+    /**
+     * Режим отправки батча (strategy-sourced):
+     * 0 - SCHEDULED, 1 - IMMEDIATE.
+     */
+    @SerialName("send_mode")
+    val sendMode: Int,
 )

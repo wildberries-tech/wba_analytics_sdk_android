@@ -30,6 +30,7 @@ import ru.wildberries.pub.analytics.diagnostics.DiagnosticsReporter
 import ru.wildberries.pub.analytics.diagnostics.QueueEvictionReporter
 import ru.wildberries.pub.analytics.device.MetadataCollector
 import ru.wildberries.pub.analytics.domain.ApiData
+import ru.wildberries.pub.analytics.domain.SendMode
 import ru.wildberries.pub.analytics.event.EvictionResult
 import ru.wildberries.pub.analytics.testMetaInfo
 import ru.wildberries.pub.analytics.testEndpointRouter
@@ -99,7 +100,7 @@ internal class SendAllAnalyticEventsOperationTests {
         )
         subject.execute()
         coVerify(exactly = 2) {
-            batchRepository.getBatch(eq(apiData), any())
+            batchRepository.getBatch(eq(apiData), any(), any())
             succeedTransport.send<BatchModel>(any(), any(), any(), any())
             eventsRepository.getFirstEventApiDataOrNull()
             batchRepository.batchSent(any())
@@ -172,7 +173,7 @@ internal class SendAllAnalyticEventsOperationTests {
         subject.execute()
         coVerify {
             eventsRepository.getFirstEventApiDataOrNull()
-            batchRepository.getBatch(any(), any())
+            batchRepository.getBatch(any(), any(), any())
             failedTransport.send<BatchModel>(any(), any(), any(), any())
             batchRepository.dropBatch(any())
             eventsRepository.deleteOldestEventsThatExceed(10000)
@@ -262,7 +263,7 @@ internal class SendAllAnalyticEventsOperationTests {
                     ),
                 )
             )
-            batchRepository.getBatch(eq(apiData), any())
+            batchRepository.getBatch(eq(apiData), any(), any())
         }
         sentEvents shouldContainExactly listOf("begin_checkout", "c", "d")
     }
@@ -411,6 +412,28 @@ internal class SendAllAnalyticEventsOperationTests {
     @Test
     fun httpStatusExceptionKeepsLegacyMessage() {
         HttpStatusException(503).message shouldBe "Server error 503"
+    }
+
+    @Test
+    fun noArgExecuteDefaultsToScheduledSendMode() = runTest {
+        val batchSlot = slot<BatchModel>()
+        coEvery { succeedTransport.send<BatchModel>(any(), capture(batchSlot), any(), any()) } returns 200
+        eventsRepository.addEvents(EventsFactory.createEntities(count = 1, apiUrl = apiData.apiUrl, apiKey = apiData.apiKey))
+
+        subject.execute()
+
+        batchSlot.captured.meta.sendMode shouldBe SendMode.SCHEDULED.value
+    }
+
+    @Test
+    fun immediateExecuteForwardsImmediateSendMode() = runTest {
+        val batchSlot = slot<BatchModel>()
+        coEvery { succeedTransport.send<BatchModel>(any(), capture(batchSlot), any(), any()) } returns 200
+        eventsRepository.addEvents(EventsFactory.createEntities(count = 1, apiUrl = apiData.apiUrl, apiKey = apiData.apiKey))
+
+        subject.execute(apiData, configRepository.config.value, SendMode.IMMEDIATE)
+
+        batchSlot.captured.meta.sendMode shouldBe SendMode.IMMEDIATE.value
     }
 
     private fun respondWith(code: Int, then: Int = code, retryPolicy: RetryPolicy = RetryPolicy.NoRetry) {

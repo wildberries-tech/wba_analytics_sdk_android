@@ -21,6 +21,7 @@ import ru.wildberries.pub.analytics.db.SentInfoEntity
 import ru.wildberries.pub.analytics.db.TransactionRunner
 import ru.wildberries.pub.analytics.device.MetadataCollector
 import ru.wildberries.pub.analytics.domain.ApiData
+import ru.wildberries.pub.analytics.domain.SendMode
 import ru.wildberries.pub.analytics.event.EventsRepository
 import ru.wildberries.pub.analytics.testMeta
 import ru.wildberries.pub.analytics.testMetaInfo
@@ -45,12 +46,13 @@ internal class BatchRepositoryImplTests : BehaviorSpec({
         val subject = createBatchRepository(eventEntities, sentInfoDao)
 
         When("Batch requested") {
-            val batch = subject.getBatch(apiData, config)
+            val batch = subject.getBatch(apiData, config, SendMode.SCHEDULED)
             assertNotNull(batch)
 
             Then("Batch contains all events from portion") {
                 val expectedEvents = eventEntities.mapToEvents(sentInfoDao.sentInfo.eventsSent + 1)
                 assertEquals(expectedEvents, batch.model.events)
+                assertEquals(SendMode.SCHEDULED.value, batch.model.meta.sendMode)
             }
         }
     }
@@ -67,7 +69,7 @@ internal class BatchRepositoryImplTests : BehaviorSpec({
         val subject = createBatchRepository(eventEntities, sentInfoDao)
 
         When("Batch requested") {
-            val batch = subject.getBatch(apiData, config)
+            val batch = subject.getBatch(apiData, config, SendMode.SCHEDULED)
             assertNotNull(batch)
 
             Then("Batch contains all events") {
@@ -93,7 +95,7 @@ internal class BatchRepositoryImplTests : BehaviorSpec({
         )
 
         When("Batch requested") {
-            val batch = subject.getBatch(apiData, config)
+            val batch = subject.getBatch(apiData, config, SendMode.SCHEDULED)
             assertNotNull(batch)
 
             Then("Content length less then maxBatchSizeInBites") {
@@ -128,12 +130,13 @@ internal class BatchRepositoryImplTests : BehaviorSpec({
         val subject = createBatchRepository(eventsRepository, sentInfoDao)
 
         When("Batch requested") {
-            val batch = subject.getBatch(apiData, WBA2Config.Default.batching)
+            val batch = subject.getBatch(apiData, WBA2Config.Default.batching, SendMode.SCHEDULED)
 
             Then("Oversized events are removed and batch is read again") {
                 coVerify(exactly = 1) { eventsRepository.deleteOversizedEvents(MAX_EVENT_EXTRAS_SIZE_IN_BYTES) }
                 assertNotNull(batch)
                 assertEquals(eventEntities.map { it.id }, batch.eventIds)
+                assertEquals(SendMode.SCHEDULED.value, batch.model.meta.sendMode)
             }
         }
     }
@@ -147,7 +150,7 @@ internal class BatchRepositoryImplTests : BehaviorSpec({
         val subject = createBatchRepository(eventsRepository)
 
         When("Batch requested") {
-            val thrown = runCatching { subject.getBatch(apiData, WBA2Config.Default.batching) }.exceptionOrNull()
+            val thrown = runCatching { subject.getBatch(apiData, WBA2Config.Default.batching, SendMode.SCHEDULED) }.exceptionOrNull()
 
             Then("Original error is propagated without retry") {
                 assertEquals(error.message, thrown?.message)
@@ -160,7 +163,7 @@ internal class BatchRepositoryImplTests : BehaviorSpec({
         val subject = createBatchRepository(emptyList())
 
         When("Batch requested") {
-            val batch = subject.getBatch(apiData, WBA2Config.Default.batching)
+            val batch = subject.getBatch(apiData, WBA2Config.Default.batching, SendMode.SCHEDULED)
 
             Then("Batch not received") {
                 assertNull(batch)

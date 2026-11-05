@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test
 import ru.wildberries.pub.analytics.NoOpWBAnalytics2Logger
 import ru.wildberries.pub.analytics.config.WBA2Config
 import ru.wildberries.pub.analytics.domain.ApiData
+import ru.wildberries.pub.analytics.domain.SendMode
 import ru.wildberries.pub.analytics.event.EventsRepository
 import ru.wildberries.pub.analytics.network.NetworkAvailabilitySource
 import java.io.IOException
@@ -38,7 +39,7 @@ internal class ImmediateSendStrategyTest {
     fun permanentFailureDoesNotSpinInHotLoop() = runTest {
         var attempts = 0
         val sendOperation = mockk<SendAllAnalyticEventsOperation> {
-            coEvery { execute(any(), any()) } answers {
+            coEvery { execute(any(), any(), eq(SendMode.IMMEDIATE)) } answers {
                 attempts++
                 if (attempts > HOT_LOOP_GUARD) throw CancellationException("hot loop")
                 throw IOException("Row too big to fit into CursorWindow")
@@ -56,7 +57,7 @@ internal class ImmediateSendStrategyTest {
     fun zeroDelayConfigStillBacksOffOnFailure() = runTest {
         var attempts = 0
         val sendOperation = mockk<SendAllAnalyticEventsOperation> {
-            coEvery { execute(any(), any()) } answers {
+            coEvery { execute(any(), any(), eq(SendMode.IMMEDIATE)) } answers {
                 attempts++
                 if (attempts > HOT_LOOP_GUARD) throw CancellationException("hot loop")
                 throw IOException()
@@ -77,7 +78,7 @@ internal class ImmediateSendStrategyTest {
     fun sendingResumesAfterTransientFailure() = runTest {
         var attempts = 0
         val sendOperation = mockk<SendAllAnalyticEventsOperation> {
-            coEvery { execute(any(), any()) } answers {
+            coEvery { execute(any(), any(), eq(SendMode.IMMEDIATE)) } answers {
                 attempts++
                 if (attempts == 1) throw IOException()
             }
@@ -94,7 +95,7 @@ internal class ImmediateSendStrategyTest {
     fun backoffResetsAfterSuccess() = runTest {
         val callTimes = mutableListOf<Long>()
         val sendOperation = mockk<SendAllAnalyticEventsOperation> {
-            coEvery { execute(any(), any()) } answers {
+            coEvery { execute(any(), any(), eq(SendMode.IMMEDIATE)) } answers {
                 callTimes += testScheduler.currentTime
                 if (callTimes.size != 2) throw IOException()
             }

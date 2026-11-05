@@ -4,6 +4,7 @@ import ru.wildberries.pub.analytics.api.Event
 import ru.wildberries.pub.analytics.api.Meta
 import ru.wildberries.pub.analytics.db.EventEntity
 import ru.wildberries.pub.analytics.domain.MetaInfo
+import ru.wildberries.pub.analytics.domain.SendMode
 import java.time.format.DateTimeFormatter
 
 private val zoneFormatter = DateTimeFormatter.ofPattern("Z")
@@ -18,7 +19,7 @@ internal fun EventEntity.toServerModel(eventNumber: Long): Event {
     )
 }
 
-internal fun MetaInfo.toServerModel(batchNumber: Long): Meta = Meta(
+internal fun MetaInfo.toServerModel(batchNumber: Long, sendMode: SendMode): Meta = Meta(
     locale = locale,
     device = device,
     sdkVersion = sdkVersion,
@@ -37,6 +38,7 @@ internal fun MetaInfo.toServerModel(batchNumber: Long): Meta = Meta(
     localTime = localTime,
     isUserNew = if (isUserNew) 1 else 0,
     batchNumber = batchNumber.toULong(),
+    sendMode = sendMode.value,
     resolutionWidth = resolutionWidth,
     resolutionHeight = resolutionHeight,
     deviceAdId = deviceAdId,
