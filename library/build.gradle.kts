@@ -114,9 +114,9 @@ ksp {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "ru.wildberries"
-            artifactId = "pub"
-            version = providers.gradleProperty("wb.analytics.version").orElse("1.0.63").get()
+            groupId = "ru.wildberries.pub"
+            artifactId = "analytics"
+            version = providers.gradleProperty("wb.analytics.version").orElse("1.0.65").get()
 
             afterEvaluate {
                 from(components["release"])
