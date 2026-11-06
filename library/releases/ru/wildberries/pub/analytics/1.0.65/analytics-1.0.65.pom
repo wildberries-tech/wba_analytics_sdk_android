@@ -7,8 +7,8 @@
   <!-- that they should prefer consuming it instead. -->
   <!-- do_not_remove: published-with-gradle-metadata -->
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ru.wildberries</groupId>
-  <artifactId>pub</artifactId>
+  <groupId>ru.wildberries.pub</groupId>
+  <artifactId>analytics</artifactId>
   <version>1.0.65</version>
   <packaging>aar</packaging>
   <dependencies>

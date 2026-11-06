@@ -1,8 +1,8 @@
 {
   "formatVersion": "1.1",
   "component": {
-    "group": "ru.wildberries",
-    "module": "pub",
+    "group": "ru.wildberries.pub",
+    "module": "analytics",
     "version": "1.0.65",
     "attributes": {
       "org.gradle.status": "release"
@@ -47,8 +47,8 @@
       ],
       "files": [
         {
-          "name": "pub-1.0.65.aar",
-          "url": "pub-1.0.65.aar",
+          "name": "analytics-1.0.65.aar",
+          "url": "analytics-1.0.65.aar",
           "size": 493811,
           "sha512": "50ce2c65ae3bcce690f82704f640898bad87b2315ed1643bbf531e97dec88295cb5e10b6636d39b20cad784b7078be32475d5b67e5ae36c25c4ae913c58e9f18",
           "sha256": "c7399d5da68e9e2fee2f9308ffee76b320dec694b857f353a36bccc03fd9f70b",
@@ -146,8 +146,8 @@
       ],
       "files": [
         {
-          "name": "pub-1.0.65.aar",
-          "url": "pub-1.0.65.aar",
+          "name": "analytics-1.0.65.aar",
+          "url": "analytics-1.0.65.aar",
           "size": 493811,
           "sha512": "50ce2c65ae3bcce690f82704f640898bad87b2315ed1643bbf531e97dec88295cb5e10b6636d39b20cad784b7078be32475d5b67e5ae36c25c4ae913c58e9f18",
           "sha256": "c7399d5da68e9e2fee2f9308ffee76b320dec694b857f353a36bccc03fd9f70b",
@@ -166,8 +166,8 @@
       },
       "files": [
         {
-          "name": "pub-1.0.65-sources.jar",
-          "url": "pub-1.0.65-sources.jar",
+          "name": "analytics-1.0.65-sources.jar",
+          "url": "analytics-1.0.65-sources.jar",
           "size": 100945,
           "sha512": "c3de8939c96c50b3bf31589f6d6947153d51a14598594b5f54bde1830d0f312297a636c2f03664aaacfba4eb1f4a1900cbe38bd05f6862acf9a5504878ad45ec",
           "sha256": "68b6d7db3f6a51e89c2b26c21ae5cf920096ebeb759ceddea0434c761bccfb73",

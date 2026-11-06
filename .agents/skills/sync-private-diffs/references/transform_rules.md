@@ -71,4 +71,4 @@ The public library supports `minSdk = 23` (Android 6.0 Marshmallow), whereas the
 
 ### 3.3. ProGuard & Publishing
 - `library/consumer-rules.pro` uses keep rules targeting `ru.wildberries.pub.**`.
-- `library/build.gradle.kts` publishes coordinates `ru.wildberries:pub:<version>`.
+- `library/build.gradle.kts` publishes coordinates `ru.wildberries.pub:analytics:<version>`.
