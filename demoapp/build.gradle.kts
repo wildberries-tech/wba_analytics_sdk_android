@@ -14,11 +14,11 @@ detekt {
 }
 
 android {
-    namespace = "ru.wildanalytics.pub.analytics.sdk.demo"
+    namespace = "ru.wildberries.pub.analytics.sdk.demo"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ru.wildanalytics.pub.analytics.sdk.demo"
+        applicationId = "ru.wildberries.pub.analytics.sdk.demo"
         minSdk = 23
         targetSdk = 35
         versionCode = 1

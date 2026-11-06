@@ -49,11 +49,11 @@ dependencies {
 val schemaDir = File(projectDir, "schemas")
 
 val libraryVersion: String = providers.environmentVariable("CI_COMMIT_TAG")
-    .orElse(providers.gradleProperty("wild.analytics.version"))
+    .orElse(providers.gradleProperty("wb.analytics.version"))
     .get()
 
 android {
-    namespace = "ru.wildanalytics.pub.WildAnalytics"
+    namespace = "ru.wildberries.pub.WBAnalytics2"
     compileSdk = 35
 
     defaultConfig {
@@ -79,6 +79,7 @@ android {
         unitTests.all {
             it.useJUnitPlatform()
             it.systemProperty("net.bytebuddy.experimental", "true")
+            it.systemProperty("robolectric.dependency.repo.url", "https://nexus-proxy.wb.ru/repository/maven-proxy/")
         }
     }
 
@@ -113,9 +114,9 @@ ksp {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "ru.wildanalytics"
+            groupId = "ru.wildberries"
             artifactId = "pub"
-            version = providers.gradleProperty("wild.analytics.version").orElse("1.0.48").get()
+            version = providers.gradleProperty("wb.analytics.version").orElse("1.0.63").get()
 
             afterEvaluate {
                 from(components["release"])

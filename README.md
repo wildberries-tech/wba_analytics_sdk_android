@@ -1,6 +1,6 @@
-# Wild Analytics Android Client
+# WB Analytics 2 Android Client
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README-en.md)
-[![version](https://img.shields.io/badge/version-1.0.62-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.62)
+[![version](https://img.shields.io/badge/version-1.0.65-blue.svg)](./library/releases/ru/wildberries/pub/1.0.65)
 
 Клиентская андроид библиотека для Wildberries аналитики.
 
@@ -18,7 +18,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            name = "WildAnalytics"
+            name = "WBAnalytics2"
             url = uri("https://raw.githubusercontent.com/wildberries-tech/wba_analytics_sdk_android/develop/library/releases")
         }
     }
@@ -29,43 +29,41 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("ru.wildanalytics:pub:1.0.62")
+    implementation("ru.wildberries:pub:1.0.65")
 }
 ```
 
 ### Способ 2: Прямое подключение AAR
 
 Вы можете скачать файл `.aar` напрямую из репозитория:
-- [Актуальный релиз 1.0.62](library/releases/ru/wildanalytics/pub/1.0.62)
-- [Архив версий](library/releases/ru/wildanalytics/pub)
+- [Актуальный релиз 1.0.65](library/releases/ru/wildberries/pub/1.0.65)
+- [Архив версий](library/releases/ru/wildberries/pub)
 
 Поместите файл в папку `app/libs/` и добавьте зависимость:
 
 ```kotlin
 dependencies {
-    implementation(files("libs/pub-1.0.62.aar"))
+    implementation(files("libs/pub-1.0.65.aar"))
 }
 ```
-
-> [!IMPORTANT]
-> Если вы переходите со старой версии `WBAnalytics2`, обязательно ознакомьтесь с [Руководством по миграции](./Migration_from_WBAnalytics2_to_WildAnalytics.md).
 
 ## Использование библиотеки
 
 ### Получение экземпляра
 
-Обычно экземпляр `WildAnalytics` предоставляется через DI (например, Hilt/Dagger):
+Обычно экземпляр `WBAnalytics2` предоставляется через DI (например, Hilt/Dagger):
 
 ```kotlin
 @Inject
-lateinit var analytics: WildAnalytics
+lateinit var analytics: WBAnalytics2
 ```
 
 Или можно создать вручную:
 
 ```kotlin
-val analytics = WildAnalytics(
-    apiUrlProvider = { "https://analytics.wb.ru/m/batch" }, // URL для отправки событий
+val analytics = WBAnalytics2(
+    context = context,
+    apiUrlProvider = { "https://a.wb.ru/m/batch" }, // URL для отправки событий
     apiKey = "ВАШ_API_KEY",                         // Ваш API-ключ
     isCollectionEnabled = true                       // Включить/отключить сбор событий
 )
@@ -75,7 +73,8 @@ val analytics = WildAnalytics(
 динамически, например:
 
 ```kotlin
-return WildAnalytics(
+return WBAnalytics2(
+    context = context,
     apiUrlProvider = { infraLocalizationUrlOverride.overrideIfNeeded(DEFAULT_PROD_URL) },
     apiKey = "ВАШ_API_KEY",
     isCollectionEnabled = true,
@@ -85,7 +84,7 @@ return WildAnalytics(
 **Пояснения к параметрам конструктора:**
 
 - `apiUrlProvider` — функция, возвращающая URL для отправки аналитики (обычно
-  `"https://wba.wb.ru/m/batch"`).
+  `"https://a.wb.ru/m/batch"`).
 - `apiKey` — API-ключ для авторизации в сервисе аналитики.
 - `enableAutomaticEvents: Boolean` — включите (`true`) для автоматического отслеживания установок, запусков приложения и времени активности. Если ваш продукт — библиотека для интеграции, держите `false`. По умолчанию `false`.
 - `isCollectionEnabled` — флаг, отвечающий за то, включена ли обработка событий по умолчанию (можно
@@ -102,7 +101,8 @@ return WildAnalytics(
 что хост доступен: такой ответ и попытка без интернета обнуляют счётчик.
 
 ```kotlin
-val analytics = WildAnalytics(
+val analytics = WBAnalytics2(
+    context = context,
     apiUrlProvider = { "https://a.wb.ru/m/batch" },
     fallbackApiUrl = "https://afb.wb.ru/m/batch",
     apiKey = "ВАШ_API_KEY",
@@ -110,13 +110,13 @@ val analytics = WildAnalytics(
 )
 ```
 
-## Конфигурация аналитики (WildAnalyticsConfig)
+## Конфигурация аналитики (WBA2Config)
 
-В текущей версии используется стандартная конфигурация `WildAnalyticsConfig.Default`, параметры которой
+В текущей версии используется стандартная конфигурация `WBA2Config.Default`, параметры которой
 подобраны для оптимальной работы библиотеки. В будущем планируется добавить возможность
 конфигурирования этих параметров извне.
 
-### Значения по умолчанию (WildAnalyticsConfig.Default):
+### Значения по умолчанию (WBA2Config.Default):
 
 - **delays: SendingDelays**
     - `delayBetweenBatches = 2 секунды` — задержка между отправкой отдельных батчей (пакетов)
@@ -157,7 +157,7 @@ analytics.logEvent("screen_open", mapOf("screen" to "Main"))
 > **Примечание:**
 > Для сериализации сложных параметров и построения JSON-структур
 > используется [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization). Эта
-> библиотека уже входит в зависимости WildAnalytics, но если вы строите свои структуры, убедитесь, что
+> библиотека уже входит в зависимости WBAnalytics2, но если вы строите свои структуры, убедитесь, что
 > она также доступна в вашем проекте.
 
 ```kotlin
@@ -205,7 +205,7 @@ analytics.setCommonParameter("vpn_status", null)
 перечислите такие ключи при создании экземпляра:
 
 ```kotlin
-val analytics = WildAnalytics(
+val analytics = WBAnalytics2(
     context = context,
     apiKey = "ВАШ_API_KEY",
     enableAutomaticEvents = true,
@@ -245,12 +245,12 @@ analytics.setCustomHeader("X-Wbaas-Token", null)
 
 #### Обогащение событий (EventEnricher)
 
-Если какое-то событие нужно дополнить общими полями динамически (например,Experiment-флаги), зарегистрируйте enricher:
+Если какое-то событие нужно дополнить общими полями динамически (например, Experiment-флаги), зарегистрируйте enricher:
 
 ```kotlin
 import kotlinx.serialization.json.JsonPrimitive
-import ru.wildanalytics.pub.analytics.AnalyticsField
-import ru.wildanalytics.pub.analytics.EventEnricher
+import ru.wildberries.pub.analytics.AnalyticsField
+import ru.wildberries.pub.analytics.EventEnricher
 
 analytics.addEventEnricher { eventName, _ ->
     listOf(
@@ -275,8 +275,8 @@ analytics.finish()
 
 ### Диагностика потерь событий
 
-SDK сообщает о потерях и сбоях через обычные методы `WildAnalyticsLogger`, новых методов реализовывать не нужно.
-Если установлен кастомный логгер, записи придут в него, иначе в Logcat с тегом `WildAnalytics`.
+SDK сообщает о потерях и сбоях через обычные методы `WBAnalytics2Logger`, новых методов реализовывать не нужно.
+Если установлен кастомный логгер (`wbAnalytics2CustomLogger`), записи придут в него, иначе в Logcat с тегом `WBA2`.
 
 - `ERROR` приходит в `logError(e, details)`: `e.message` начинается с маркера (`[wba_queue_eviction] …`),
   атрибуты лежат в `details`.
@@ -424,7 +424,7 @@ library/build/reports/detekt/detekt.html
 ## FAQ
 
 - **Можно ли вызывать методы c разных потоков?**  
-  Да, все публичные методы WildAnalytics реализованы потокобезопасно.
+  Да, все публичные методы WBAnalytics2 реализованы потокобезопасно.
 - **Как указать apiKey?**  
   Через параметр конструктора или DI.
 - **Как добавить пользовательский токен?**  
@@ -432,25 +432,25 @@ library/build/reports/detekt/detekt.html
 - **Что если нет сети?**  
   События сохраняются и будут отправлены при появлении сети.
 - **Как завершить сбор событий?**  
-  Вызовите `finish()`. После этого возоновить процесс невозможно.
+  Вызовите `finish()`. После этого возобновить процесс невозможно.
 
-# Wild Attribution Tracker
+# WB Attribution Tracker
 
 Входит в состав библиотеки, начиная с 1.0.12
 
 ## Подключение библиотеки
 
-Аналогично [подключению wild analytics client](#подключение-библиотеки)
+Аналогично [подключению wb analytics client](#подключение-библиотеки)
 
 ## Использование библиотеки
 
 ### Создание экземпляра
 
 ```kotlin
-WildAttributionTracker.Factory.create(
+WBAttributionTracker.Factory.create(
     context = context, // контекст приложения
     withSystemLogs = BuildConfig.DEBUG, // отправлять ли системные логи
-    systemLogsTag = "WildAttribution", // тэг, по которому отправляются логи
+    systemLogsTag = "WBAttribution", // тэг, по которому отправляются логи
 )
 ```
 

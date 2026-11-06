@@ -1,6 +1,6 @@
-# Wild Analytics Android Client
+# WB Analytics 2 Android Client
 [![ru](https://img.shields.io/badge/lang-ru-green.svg)](https://github.com/wildberries-tech/wba_analytics_sdk_android/blob/develop/README.md)
-[![version](https://img.shields.io/badge/version-1.0.62-blue.svg)](./library/releases/ru/wildanalytics/pub/1.0.62)
+[![version](https://img.shields.io/badge/version-1.0.65-blue.svg)](./library/releases/ru/wildberries/pub/1.0.65)
 
 Android client library for Wildberries analytics.
 
@@ -18,7 +18,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            name = "WildAnalytics"
+            name = "WBAnalytics2"
             url = uri("https://raw.githubusercontent.com/wildberries-tech/wba_analytics_sdk_android/develop/library/releases")
         }
     }
@@ -29,43 +29,41 @@ Add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("ru.wildanalytics:pub:1.0.62")
+    implementation("ru.wildberries:pub:1.0.65")
 }
 ```
 
 ### Option 2: Direct AAR Integration
 
 Download the `.aar` file directly from the repository:
-- [Latest Release 1.0.62](library/releases/ru/wildanalytics/pub/1.0.62)
-- [Version Archive](library/releases/ru/wildanalytics/pub)
+- [Latest Release 1.0.65](library/releases/ru/wildberries/pub/1.0.65)
+- [Version Archive](library/releases/ru/wildberries/pub)
 
 Place the file into your `app/libs/` directory and configure your dependency:
 
 ```kotlin
 dependencies {
-    implementation(files("libs/pub-1.0.62.aar"))
+    implementation(files("libs/pub-1.0.65.aar"))
 }
 ```
-
-> [!IMPORTANT]
-> If you are migrating from the old `WBAnalytics2` version, please refer to the [Migration Guide](./Migration_from_WBAnalytics2_to_WildAnalytics-en.md).
 
 ## Using the Library
 
 ### Getting an Instance
 
-Usually, an instance of `WildAnalytics` is provided via DI (e.g., Hilt/Dagger):
+Usually, an instance of `WBAnalytics2` is provided via DI (e.g., Hilt/Dagger):
 
 ```kotlin
 @Inject
-lateinit var analytics: WildAnalytics
+lateinit var analytics: WBAnalytics2
 ```
 
 Or you can create it manually:
 
 ```kotlin
-val analytics = WildAnalytics(
-    apiUrlProvider = { "https://analytics.wb.ru/m/batch" }, // URL for sending events
+val analytics = WBAnalytics2(
+    context = context,
+    apiUrlProvider = { "https://a.wb.ru/m/batch" }, // URL for sending events
     apiKey = "YOUR_API_KEY",                        // Your API key
     isCollectionEnabled = true                      // Enable/disable event collection
 )
@@ -74,7 +72,8 @@ val analytics = WildAnalytics(
 In real projects, DI and providers are often used, where parameters can be substituted dynamically, for example:
 
 ```kotlin
-return WildAnalytics(
+return WBAnalytics2(
+    context = context,
     apiUrlProvider = { infraLocalizationUrlOverride.overrideIfNeeded(DEFAULT_PROD_URL) },
     apiKey = "YOUR_API_KEY",
     isCollectionEnabled = true,
@@ -82,7 +81,7 @@ return WildAnalytics(
 ```
 
 - `apiUrlProvider` — function returning the URL for sending analytics (usually
-  `"https://wba.wb.ru/m/batch"`).
+  `"https://a.wb.ru/m/batch"`).
 - `apiKey` — API key for authentication in the analytics service.
 - `enableAutomaticEvents: Boolean` — enable (`true`) for automatic tracking of installations, application launches, and active time. If your product is a library for integration, keep `false`. Defaults to `false`.
 - `isCollectionEnabled` — flag that controls whether event processing is enabled by default (can be changed at runtime).
@@ -94,7 +93,8 @@ return WildAnalytics(
 When `fallbackApiUrl` is configured, the SDK switches event routing to the fallback endpoint until process restart after 3 consecutive failures to deliver a batch while active internet connectivity is verified.
 
 ```kotlin
-val analytics = WildAnalytics(
+val analytics = WBAnalytics2(
+    context = context,
     apiUrlProvider = { "https://a.wb.ru/m/batch" },
     fallbackApiUrl = "https://afb.wb.ru/m/batch",
     apiKey = "YOUR_API_KEY",
@@ -102,12 +102,12 @@ val analytics = WildAnalytics(
 )
 ```
 
-## Analytics Configuration (WildAnalyticsConfig)
+## Analytics Configuration (WBA2Config)
 
-The current version uses the standard configuration `WildAnalyticsConfig.Default`, whose parameters are optimized for library operation.  
+The current version uses the standard configuration `WBA2Config.Default`, whose parameters are optimized for library operation.  
 In the future, it will be possible to configure these externally.
 
-### Default values (WildAnalyticsConfig.Default):
+### Default values (WBA2Config.Default):
 
 - **delays: SendingDelays**
     - `delayBetweenBatches = 2 seconds` — delay between sending event batches.
@@ -142,7 +142,7 @@ analytics.logEvent("screen_open", mapOf("screen" to "Main"))
 
 > **Note:**  
 > [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) is used for serializing complex parameters and building JSON structures.  
-> It is already included in WildAnalytics dependencies, but if you create your own structures, ensure it’s available in your project.
+> It is already included in WBAnalytics2 dependencies, but if you create your own structures, ensure it’s available in your project.
 
 ```kotlin
 analytics.logEvent(
@@ -186,7 +186,7 @@ analytics.setCommonParameter("vpn_status", null)
 Common parameters are merged into an event at the moment of `logEvent`. If the application sets them asynchronously (for example, `client_id` is read from a database), the earliest events — pushes received when the application is closed, automatic SDK events — could be sent without them. To prevent this, list those keys when initializing the instance:
 
 ```kotlin
-val analytics = WildAnalytics(
+val analytics = WBAnalytics2(
     context = context,
     apiKey = "YOUR_API_KEY",
     enableAutomaticEvents = true,
@@ -224,8 +224,8 @@ If you need to dynamically add common fields to every event (e.g., experiment fl
 
 ```kotlin
 import kotlinx.serialization.json.JsonPrimitive
-import ru.wildanalytics.pub.analytics.AnalyticsField
-import ru.wildanalytics.pub.analytics.EventEnricher
+import ru.wildberries.pub.analytics.AnalyticsField
+import ru.wildberries.pub.analytics.EventEnricher
 
 analytics.addEventEnricher { eventName, _ ->
     listOf(
@@ -345,7 +345,7 @@ The SDK automatically collects and sends core system lifecycle events for each i
 ## FAQ
 
 - **Can I call methods from different threads?**  
-  Yes, all WildAnalytics public methods are thread-safe.
+  Yes, all WBAnalytics2 public methods are thread-safe.
 - **How to specify apiKey?**  
   Via constructor parameter or DI.
 - **How to add a custom token?**  
@@ -355,23 +355,23 @@ The SDK automatically collects and sends core system lifecycle events for each i
 - **How to stop event collection?**  
   Call `finish()`. After that, the process cannot be resumed.
 
-# Wild Attribution Tracker
+# WB Attribution Tracker
 
 Part of the library starting from version 1.0.12.
 
 ## Adding the Library
 
-Same as [adding the wild analytics client](#adding-the-library).
+Same as [adding the wb analytics client](#adding-the-library).
 
 ## Using the Library
 
 ### Creating an Instance
 
 ```kotlin
-WildAttributionTracker.Factory.create(
+WBAttributionTracker.Factory.create(
     context = context, // application context
     withSystemLogs = BuildConfig.DEBUG, // whether to send system logs
-    systemLogsTag = "WildAttribution", // log tag
+    systemLogsTag = "WBAttribution", // log tag
 )
 ```
 
